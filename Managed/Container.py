@@ -1,9 +1,8 @@
 from ChessModel import Chess,卒,士
-
 class Container():
-
-    chesses:list[Chess] = []
+    chess_boar:dict[(int,int),Chess] = {}
     def __init__(self):
         pass
 
+#共享单例
 container = Container()
