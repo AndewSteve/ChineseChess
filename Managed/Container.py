@@ -1,4 +1,4 @@
-from ChessModel import Chess,卒,士
+from . import ChessModel
 class Container():
     chess_boar:dict[(int,int),Chess] = {}
     def __init__(self):
