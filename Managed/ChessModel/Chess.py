@@ -1,9 +1,11 @@
 import abc
 from abc import abstractmethod,ABC
+from enum import Enum
 
+class ChessColor(Enum):
+    RED = 1
+    BLACK = 2
 class Chess(ABC):
-
-    @abc.abstractmethod
     def move(self,vector):
         """_summary_
 
@@ -15,16 +17,20 @@ class Chess(ABC):
         """
         x,y = vector
         return True
-    
-    @abc.abstractmethod
+
+    @abstractmethod
     def onSelected(self):
         pass
     
-    @abstractmethod
     def onDestroyed(self):
         pass
 
-    def __init__(self) -> None:
-        pass
+    def init(self,position):
+        self.x,self.y = position
+
+
+    def __init__(self,color):
+        self.color = color
+
 
 
