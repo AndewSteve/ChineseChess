@@ -8,11 +8,7 @@ class 将(Chess):
             self.chess_img_path = os.path.join(chess_img_path,"帅.png")
         else:
             self.chess_img_path = os.path.join(chess_img_path,"将.png")
-        self.image = pygame.image.load(self.chess_img_path)
-        self.image = scale_img(self.image)
-        self.rect = self.image.get_rect()
-        self.rect.center = position
-        self.x,self.y = position
+        super().init(position)
 
     def onSelected(self):
         return super().onSelected()
