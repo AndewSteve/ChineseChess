@@ -1,15 +1,21 @@
-from ChessModel import Chess,ChessColor,卒,象,士,炮,马,将,车
+import pygame
+from .ChessModel import Chess,ChessColor,卒,象,士,炮,马,将,车
 import json
-#from Game import game
-class Container():
+from Managed.Game import Dict_to_Abs_posi
+class Container:
     chess_board:dict[(int,int),Chess] = {}
 
     def __init__(self):
+        self.sprite_group = pygame.sprite.Group()
         self.load_chess_board()
+        self.initChessBoard()
     
     def initChessBoard(self):
-        for posi,chess in self.chess_board.items:
-            chess.init(posi)
+        for posi,chess in self.chess_board.items():
+            abs_posi = Dict_to_Abs_posi(posi)
+            chess.init(abs_posi)
+            self.sprite_group.add(chess)
+        print("初始化棋子")
 
     def updateChess(self,old_posi,new_posi,chess):
         if self.chess_board.__contains__(old_posi):
@@ -116,13 +122,13 @@ def initMap(board):
     board[(7, 9)] = 马(ChessColor.BLACK)
     board[(8, 9)] = 车(ChessColor.BLACK)
 
-    container.save_chess_board("./save/__init__.json")
+    # container.save_chess_board("./save/__init__.json")
 
 
 
-#共享单例
-container = Container()
 
-if __name__ =='__main__':
-    container.load_chess_board()
-    print("导入存档:save00.json")
+# if __name__ =='__main__':
+#     #共享单例
+#     container = Container()
+#     container.load_chess_board()
+#     print("导入存档:save00.json")
