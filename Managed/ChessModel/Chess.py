@@ -1,7 +1,7 @@
 import abc,pygame
 from abc import abstractmethod,ABC
 from enum import Enum
-
+from Managed.Game import Dict_to_Abs_posi,scale_img
 chess_img_path = "./Resource/img/Chess"
 
 class ChessColor(Enum):
@@ -15,8 +15,12 @@ class Chess(ABC,pygame.sprite.Sprite):
         self.rect:pygame.Rect = None
 
     @abstractmethod
-    def init(self,position):
-        self.x,self.y = position
+    def init(self,dict_posi):
+        self.image = pygame.image.load(self.chess_img_path)
+        self.image = scale_img(self.image)
+        self.rect = self.image.get_rect()
+        self.x,self.y = dict_posi
+        #self.rect.center = Dict_to_Abs_posi(dict_posi)  游戏开始时会刷新屏幕，Container会给所有棋子摆正
 
     @abstractmethod
     def onSelected(self):
@@ -25,7 +29,7 @@ class Chess(ABC,pygame.sprite.Sprite):
     def onDestroyed(self):
         pass
 
-    def move(self,new_posi):
+    def move(self,dict_posi):
         """_summary_
 
         Args:
@@ -34,8 +38,8 @@ class Chess(ABC,pygame.sprite.Sprite):
         Returns:
             Boolean: Move successfully
         """
-        self.x,self.y = new_posi
-        self.rectangle.center = new_posi
+        self.x,self.y = dict_posi
+        self.rect.center = Dict_to_Abs_posi(dict_posi)
         return True
 
     

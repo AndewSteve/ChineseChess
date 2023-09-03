@@ -1,5 +1,5 @@
 import pygame
-from .ChessModel import Chess,ChessColor,卒,象,士,炮,马,将,车
+from Managed.ChessModel import Chess,ChessColor,卒,象,士,炮,马,将,车
 import json
 from Managed.Game import Dict_to_Abs_posi
 class Container:
@@ -12,10 +12,14 @@ class Container:
     
     def initChessBoard(self):
         for posi,chess in self.chess_board.items():
-            abs_posi = Dict_to_Abs_posi(posi)
-            chess.init(abs_posi)
+            chess.init(posi)
             self.sprite_group.add(chess)
         print("初始化棋子")
+
+    def update_abs_posi(self):
+        for posi,chess in self.chess_board.items():
+            abs_posi = Dict_to_Abs_posi(posi)
+            chess.rect.center = abs_posi
 
     def updateChess(self,old_posi,new_posi,chess):
         if self.chess_board.__contains__(old_posi):
@@ -56,28 +60,6 @@ class Container:
             json.dump(new_dict, file,indent=4,ensure_ascii=False)
         print(f"保存存档:{filename}")
 
-
-def custom_encoder(obj):
-    if isinstance(obj, dict):
-        new_dict = {}
-        for key, value in obj.items():
-            if isinstance(key, tuple):
-                key_list = list(key)
-                new_dict[key_list] = value
-            else:
-                new_dict[key] = value
-        return new_dict
-def custom_decoder(obj):
-    if isinstance(obj, dict):
-        new_dict = {}
-        for key, value in obj.items():
-            if isinstance(key, list):
-                key_tuple = tuple(key)
-                new_dict[key_tuple] = value
-            else:
-                new_dict[key] = value
-        return new_dict
-    
 
 def initMap(board):
     board[(0, 0)] = 车(ChessColor.RED)
