@@ -5,6 +5,7 @@ from enum import Enum
 class ChessColor(Enum):
     RED = 1
     BLACK = 2
+
 class Chess(ABC):
     def move(self,vector):
         """_summary_
@@ -15,7 +16,7 @@ class Chess(ABC):
         Returns:
             Boolean: Move successfully
         """
-        x,y = vector
+        self.x,self.y = vector
         return True
 
     @abstractmethod
@@ -31,6 +32,13 @@ class Chess(ABC):
 
     def __init__(self,color):
         self.color = color
+    
+    def __dict__(self):
+        return {
+            "color" : self.color
+        }
+
+
 
 
 
