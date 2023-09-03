@@ -1,3 +1,4 @@
+import os
 import pygame
 from pygame.locals import *
 
@@ -17,11 +18,7 @@ class Game:
     sprite_group:pygame.sprite.Group() = None
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
         pygame.display.set_caption("中国象棋")  # 设置游戏名字
-        self.board_img = pygame.image.load('./Resource/img/ChessBoard/棋盘.png')
-        self.board_img = pygame.transform.scale(self.board_img, (WIDTH, HEIGHT))
-        self.screen.blit(self.board_img, (0, 0))
         self.clock = pygame.time.Clock()
 
     def setContainer(self,container):
@@ -32,6 +29,7 @@ class Game:
 
     def run(self):
         global WIDTH, HEIGHT,SQUARE_SIZE_X,SQUARE_SIZE_Y
+        self.updateScreen()
         self.update()
         while True:
             for event in pygame.event.get():
@@ -48,8 +46,8 @@ class Game:
 
     def updateScreen(self):
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-        self.board_img = pygame.image.load('./Resource/img/ChessBoard/棋盘.png')
-        self.board_img = pygame.transform.scale(self.board_img, (WIDTH, HEIGHT))
+        self.board_img = pygame.image.load(os.path.join(chessBoard_img_path,"棋盘.png"))
+        self.board_img = pygame.transform.scale(self.board_img,(WIDTH, HEIGHT))
         self.screen.blit(self.board_img, (0, 0))
         self.container.update_abs_posi()
 
