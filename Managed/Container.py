@@ -1,5 +1,5 @@
 import pygame
-from .ChessModel import Chess,ChessColor,卒,象,士,炮,马,将,车
+from Managed.ChessModel import Chess,ChessColor,卒,象,士,炮,马,将,车
 import json
 from Managed.Game import Dict_to_Abs_posi
 class Container:
@@ -16,6 +16,11 @@ class Container:
             chess.init(abs_posi)
             self.sprite_group.add(chess)
         print("初始化棋子")
+
+    def update_abs_posi(self):
+        for posi,chess in self.chess_board.items():
+            abs_posi = Dict_to_Abs_posi(posi)
+            chess.move(abs_posi)
 
     def updateChess(self,old_posi,new_posi,chess):
         if self.chess_board.__contains__(old_posi):

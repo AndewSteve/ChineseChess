@@ -15,8 +15,8 @@ class Chess(ABC,pygame.sprite.Sprite):
         self.rect:pygame.Rect = None
 
     @abstractmethod
-    def init(self,position):
-        self.x,self.y = position
+    def init(self,abs_posi):
+        self.x,self.y = abs_posi
 
     @abstractmethod
     def onSelected(self):
@@ -35,7 +35,7 @@ class Chess(ABC,pygame.sprite.Sprite):
             Boolean: Move successfully
         """
         self.x,self.y = new_posi
-        self.rectangle.center = new_posi
+        self.rect.center = new_posi
         return True
 
     
