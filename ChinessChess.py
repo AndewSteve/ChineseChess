@@ -1,5 +1,10 @@
-from Managed.Game import game #获取Game单例
+from Managed.Game import Game
+from Managed.Container import Container
 
 
 if __name__ == '__main__':
-    new_game = game
+    game = Game()
+    container = Container()
+    game.setContainer(container)
+    game.setSpriteGroup(container.sprite_group)
+    game.run()
