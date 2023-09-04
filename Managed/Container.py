@@ -17,12 +17,25 @@ class Container:
             self.chess_sprite_group.add(chess)
         print("初始化棋子")
 
-    def drop_chess(self,posi):
-        abs_x,abs_y = posi
+    def drop_chess(self,abs_posi):
+        abs_x,abs_y = abs_posi
         for dict_posi,drop_sprite in self.selected_chess.drop_point_dict.items():
             if drop_sprite.rect.collidepoint(abs_x,abs_y):
                 x,y = dict_posi
+                if self.chess_board.__contains__(dict_posi):
+                    chess_destroyed = self.chess_board[dict_posi]
+                    self.updateChess(chess_destroyed,(-10,-10))
+                    chess_destroyed.move((-10,-10))
+                    print(f"棋子{chess_destroyed.__class__.__name__}被吃掉了")
+
+                self.updateChess(self.selected_chess,dict_posi)
+                self.selected_chess.move(dict_posi)
+                del self.selected_chess.drop_point_dict
                 print(f"棋子{self.selected_chess.__class__.__name__}落到{x}_{y}")
+                return True
+        return False
+    
+    
 
     def select_chess(self,posi):
         x,y =posi
@@ -31,8 +44,9 @@ class Container:
             if chess.rect.collidepoint(x,y):
                 print(f"点击到棋子{chess.__class__.__name__}:({dict_x},{dict_y})")
                 self.selected_chess = chess
-                chess.onSelected()
-                break
+                chess.onSelected(self.chess_board)
+                return True
+        return False
 
 
     def update_abs_posi(self):
@@ -40,11 +54,9 @@ class Container:
             abs_posi = Dict_to_Abs_posi(posi)
             chess.rect.center = abs_posi
 
-    def updateChess(self,old_posi,new_posi,chess):
-        if self.chess_board.__contains__(old_posi):
-            if not chess:
-                chess = self.chess_board[old_posi]
-            self.chess_board.pop(old_posi)
+    def updateChess(self,chess:Chess,new_posi):
+        old_posi = (chess.x,chess.y)
+        self.chess_board.pop(old_posi)
         self.chess_board[new_posi] = chess
 
 

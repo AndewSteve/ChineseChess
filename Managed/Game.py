@@ -1,3 +1,4 @@
+from enum import Enum
 import os
 import pygame
 from pygame.locals import *
@@ -23,19 +24,26 @@ def update_global_val():
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
+class ActionTeam(Enum):
+    RED = 1
+    BLACK = 2
+
 class Game:
-    Action_team = None
+    Action_team :ActionTeam= None
     def __init__(self):
         pygame.init()
         pygame.display.set_caption("中国象棋")  # 设置游戏名字
+        self.all_sprites = pygame.sprite.LayeredUpdates()
         self.clock = pygame.time.Clock()
+        self.Action_team  = ActionTeam.BLACK
 
     def setContainer(self,container):
         self.container :Container = container
+        self.all_sprites.add(self.container.chess_sprite_group,layer = 2)
 
     def run(self):
+        self.updateScreenScale()
         global WIDTH, HEIGHT,SQUARE_SIZE_X,SQUARE_SIZE_Y
-        self.updateScreen()
         self.update()
         while True:
             for event in pygame.event.get():
@@ -46,24 +54,29 @@ class Game:
                 elif event.type == VIDEORESIZE:
                     WIDTH, HEIGHT = event.size[0], event.size[1]
                     update_global_val()
-                    self.updateScreen()
+                    self.updateScreenScale()
                     self.update()
-            pygame.display.flip()
             self.clock.tick(60)
+            pygame.display.flip()
 
     def clickEvent(self,event):
         mouse_x,mouse_y = pygame.mouse.get_pos()
         selected_chess = self.container.selected_chess
         if selected_chess == None:
-            self.container.select_chess((mouse_x,mouse_y))
-            self.container.selected_chess.draw_drop_points(self.screen)
+            if self.container.select_chess((mouse_x,mouse_y)):
+                selected_chess = self.container.selected_chess
+                self.all_sprites.add(selected_chess.drop_sprite_group,layer = 3)
         else:
-            for drop_sprite in selected_chess.drop_sprite_group.sprites():
-                if drop_sprite.rect.collidepoint(mouse_x,mouse_y):
-                    pass
+            if  self.container.drop_chess((mouse_x,mouse_y)) or self.container.selected_chess.rect.collidepoint(mouse_x,mouse_y):
+                self.all_sprites.remove_sprites_of_layer(3)
+                del self.container.selected_chess.drop_sprite_group
+                del self.container.selected_chess
 
+            
 
-    def updateScreen(self):
+        self.update()
+
+    def updateScreenScale(self):
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
         self.board_img = pygame.image.load(os.path.join(chessBoard_img_path,"棋盘.png"))
         self.board_img = pygame.transform.scale(self.board_img,(WIDTH, HEIGHT))
@@ -71,8 +84,11 @@ class Game:
         self.container.update_abs_posi()
 
     def update(self):
-        self.container.chess_sprite_group.update()
-        self.container.chess_sprite_group.draw(self.screen)
+        self.all_sprites.update()
+        self.screen.blit(self.board_img, (0, 0))
+        self.all_sprites.clear(self.screen,self.board_img)
+        self.all_sprites.draw(self.screen)
+        pygame.display.flip()
 
 
 def scale_chess_img(image):
