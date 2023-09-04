@@ -8,8 +8,7 @@ class 士(Chess):
             self.chess_img_path = os.path.join(chess_img_path,"仕.png")
         super().init(position)
         
-    def onSelected(self):
-
+    def onSelected(self,chess_board:dict[(int,int),Chess]):
         result = []
 
         top_max ,button_max = 7,9
@@ -37,11 +36,10 @@ class 士(Chess):
                     pre_magnitude = (ori-pygame.math.Vector2(i,j)).length()
                     if pre_magnitude == self_magnitude:
                         continue
-                    
-                    result.append((i,j))
+                    if chess_board.__contains__((i,j))==False or chess_board[(i,j)].color!=self.color:
+                        result.append((i,j))
 
         for posi in result:
             x,y = posi
-            print(f"{x}_{y}")
 
-        super().onSelected(result)
+        super().onSelected(result,chess_board)
