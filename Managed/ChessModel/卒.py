@@ -1,6 +1,5 @@
 import os,pygame
 from .Chess import Chess,ChessColor,chess_img_path
-from Managed.Game import scale_img
 class 卒(Chess):
     def init(self, position):
         if(self.color==ChessColor.RED):
@@ -10,4 +9,14 @@ class 卒(Chess):
         super().init(position)
         
     def onSelected(self):
-        return super().onSelected()
+        drop_point_list=[(4,4)]
+        Eatable = False
+
+        
+        chess_board:dict[(int,int),Chess] = {}
+        for posi,chess in chess_board.items():
+            if chess is Eatable:
+                flag = True
+
+
+        super().onSelected(drop_point_list)

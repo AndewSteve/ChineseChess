@@ -1,20 +1,39 @@
 import pygame
-from Managed.ChessModel import Chess,ChessColor,卒,象,士,炮,马,将,车
+from Managed.ChessModel import Chess,DropPoint,ChessColor,卒,象,士,炮,马,将,车
 import json
 from Managed.Game import Dict_to_Abs_posi
 class Container:
     chess_board:dict[(int,int),Chess] = {}
+    selected_chess:Chess = None
 
     def __init__(self):
-        self.sprite_group = pygame.sprite.Group()
+        self.chess_sprite_group = pygame.sprite.Group()
         self.load_chess_board()
         self.initChessBoard()
     
     def initChessBoard(self):
         for posi,chess in self.chess_board.items():
             chess.init(posi)
-            self.sprite_group.add(chess)
+            self.chess_sprite_group.add(chess)
         print("初始化棋子")
+
+    def drop_chess(self,posi):
+        abs_x,abs_y = posi
+        for dict_posi,drop_sprite in self.selected_chess.drop_point_dict.items():
+            if drop_sprite.rect.collidepoint(abs_x,abs_y):
+                x,y = dict_posi
+                print(f"棋子{self.selected_chess.__class__.__name__}落到{x}_{y}")
+
+    def select_chess(self,posi):
+        x,y =posi
+        for dict_posi,chess in self.chess_board.items():
+            dict_x,dict_y = dict_posi
+            if chess.rect.collidepoint(x,y):
+                print(f"点击到棋子{chess.__class__.__name__}:({dict_x},{dict_y})")
+                self.selected_chess = chess
+                chess.onSelected()
+                break
+
 
     def update_abs_posi(self):
         for posi,chess in self.chess_board.items():

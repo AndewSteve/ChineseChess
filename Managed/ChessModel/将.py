@@ -1,6 +1,5 @@
 import os,pygame
 from .Chess import Chess,ChessColor,chess_img_path
-from Managed.Game import scale_img
 
 class 将(Chess):
     def init(self, position):
