@@ -20,9 +20,8 @@ def update_global_val():
     SQUARE_SIZE_Y = HEIGHT // ROWS
     OFFSET_X = SQUARE_SIZE_X // 2
     OFFSET_Y = SQUARE_SIZE_Y // 2
-# 定义一些颜色
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
+
+
 
 class ActionTeam(Enum):
     RED = 1
