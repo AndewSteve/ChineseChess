@@ -9,7 +9,7 @@ class 将(Chess):
             self.chess_img_path = os.path.join(chess_img_path,"将.png")
         super().init(position)
 
-    def onSelected(self,chess_board:dict[(int,int),Chess]):
+    def onSelected(self,chess_board:dict[(int,int),Chess],BLACK_checkmate,RED_checkmate):
         result = []
 
         top_max ,button_max = 7,9
@@ -43,4 +43,4 @@ class 将(Chess):
         for posi in result:
             x,y = posi
 
-        super().onSelected(result,chess_board)
+        super().onSelected(result,chess_board,BLACK_checkmate,RED_checkmate)

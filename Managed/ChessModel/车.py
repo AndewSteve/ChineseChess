@@ -9,7 +9,7 @@ class 车(Chess):
             self.chess_img_path = os.path.join(chess_img_path,"車.png")
         super().init(position)
 
-    def onSelected(self,chess_board:dict[(int,int),Chess]):
+    def onSelected(self,chess_board:dict[(int,int),Chess],BLACK_checkmate,RED_checkmate):
         drop_point_list=[(4,4)]
         Eatable = False
         for posi,chess in chess_board.items():
@@ -132,4 +132,4 @@ class 车(Chess):
             x,y = posi
             print(f"{x}_{y}")
             
-        super().onSelected(result,chess_board)
+        super().onSelected(result,chess_board,BLACK_checkmate,RED_checkmate)

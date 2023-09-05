@@ -8,7 +8,7 @@ class 马(Chess):
             self.chess_img_path = os.path.join(chess_img_path,"馬.png")
         super().init(position)
         
-    def onSelected(self,chess_board:dict[(int,int),Chess]):
+    def onSelected(self,chess_board:dict[(int,int),Chess],BLACK_checkmate,RED_checkmate):
 
         result = []
 
@@ -37,50 +37,43 @@ class 马(Chess):
             for j in range(top_max, button_max + 1):
                 if (i, j) in pre_select1:
                     if chess_board.__contains__((self.x,j - 1)) == True:
-                        break
+                        continue
                     elif chess_board.__contains__((i,j)) == True:
                         if chess_board[(i,j)].color == chess_board[(self.x,self.y)].color:
-                            break
+                            continue
                         else:
                             result.append((i,j))
                     elif chess_board.__contains__((self.x,j - 1)) == False:
                         result.append((i,j))
                 if (i, j) in pre_select2:
                     if chess_board.__contains__((self.x,j + 1)) == True:
-                        break
+                        continue
                     elif chess_board.__contains__((i,j)) == True:
                         if chess_board[(i,j)].color == chess_board[(self.x,self.y)].color:
-                            break
+                            continue
                         else:
                             result.append((i,j))
                     elif chess_board.__contains__((self.x,j + 1)) == False:
                         result.append((i,j))
                 if (i, j) in pre_select3:
                     if chess_board.__contains__((i - 1,self.y)) == True:
-                        break
+                        continue
                     elif chess_board.__contains__((i,j)) == True:
                         if chess_board[(i,j)].color == chess_board[(self.x,self.y)].color:
-                            break
+                            continue
                         else:
                             result.append((i,j))
                     elif chess_board.__contains__((i - 1,self.y)) == False:
                         result.append((i,j))
                 if (i, j) in pre_select4:
                     if chess_board.__contains__((i + 1,self.y)) == True:
-                        break
+                        continue
                     elif chess_board.__contains__((i,j)) == True:
                         if chess_board[(i,j)].color == chess_board[(self.x,self.y)].color:
-                            break
+                            continue
                         else:
                             result.append((i,j))
                     elif chess_board.__contains__((i + 1,self.y)) == False:
                         result.append((i,j))
 
-
-
-
-        for posi in result:
-            x, y = posi
-            print(f"{x}_{y}")
-
-        super().onSelected(result,chess_board)
+        super().onSelected(result,chess_board,BLACK_checkmate,RED_checkmate)

@@ -2,10 +2,15 @@ import pygame
 from Managed.ChessModel import Chess,DropPoint,ChessColor,卒,象,士,炮,马,将,车
 import json
 from Managed.Game import Dict_to_Abs_posi
+
+game_save_path = "./save/save00.json"
+game_load_path = "./save/save00.json"
+
 class Container:
     chess_board:dict[(int,int),Chess] = {}
     selected_chess:Chess = None
-
+    RED_checkmate:Chess = None
+    BLACK_checkmate:Chess = None
     def __init__(self):
         self.chess_sprite_group = pygame.sprite.Group()
         self.load_chess_board()
@@ -15,6 +20,11 @@ class Container:
         for posi,chess in self.chess_board.items():
             chess.init(posi)
             self.chess_sprite_group.add(chess)
+            if isinstance(chess,将):
+                if chess.color == ChessColor.RED:
+                    self.RED_checkmate = chess
+                elif chess.color == ChessColor.BLACK:
+                    self.BLACK_checkmate = chess
         print("初始化棋子")
 
     def check_and_drop_chess(self,abs_posi):
@@ -26,12 +36,15 @@ class Container:
                     chess_destroyed = self.chess_board[dict_posi]
                     self.updateChess(chess_destroyed,(-10,-10))
                     chess_destroyed.move((-10,-10))
-                    print(f"棋子{chess_destroyed.__class__.__name__}被吃掉了")
-
+                    #print(f"棋子{chess_destroyed.__class__.__name__}被吃掉了")
+                    if chess_destroyed is self.BLACK_checkmate:
+                        self.BLACK_checkmate = None
+                    elif chess_destroyed is self.RED_checkmate:
+                        self.RED_checkmate = None
                 self.updateChess(self.selected_chess,dict_posi)
                 self.selected_chess.move(dict_posi)
                 del self.selected_chess.drop_point_dict
-                print(f"棋子{self.selected_chess.__class__.__name__}落到{x}_{y}")
+                #print(f"棋子{self.selected_chess.__class__.__name__}落到{x}_{y}")
                 del self.selected_chess.drop_sprite_group
                 del self.selected_chess
 
@@ -43,15 +56,15 @@ class Container:
         for dict_posi,chess in self.chess_board.items():
             dict_x,dict_y = dict_posi
             if chess.rect.collidepoint(x,y):
-                print(f"现在碰撞的棋子是{chess.__class__.__name__},阵营是{chess.color},正在行动的阵营是{action_team},两者是否相等：{chess.color.value == action_team.value}")
+                #print(f"现在碰撞的棋子是{chess.__class__.__name__},阵营是{chess.color},正在行动的阵营是{action_team},两者是否相等：{chess.color.value == action_team.value}")
                 if not chess.color.value == action_team.value:
                     continue
                 if not self.selected_chess == None:
                     del self.selected_chess.drop_sprite_group
                     del self.selected_chess
-                print(f"点击到棋子{chess.__class__.__name__}:({dict_x},{dict_y})")
+                #print(f"点击到棋子{chess.__class__.__name__}:({dict_x},{dict_y})")
                 self.selected_chess = chess
-                chess.onSelected(self.chess_board)
+                chess.onSelected(self.chess_board,self.BLACK_checkmate,self.RED_checkmate)
                 return True
         return False
 
@@ -75,7 +88,7 @@ class Container:
         chess.onDestroyed()
         
 
-    def load_chess_board(self,filename = "./save/save00.json"):
+    def load_chess_board(self,filename = game_load_path):
         self.chess_board={}
         with open(filename, "r") as file:
             saved_dict = json.load(file)
@@ -87,7 +100,7 @@ class Container:
         self.initChessBoard()
         print(f"导入存档:{filename}")
 
-    def save_chess_board(self,filename = "./save/save00.json"):
+    def save_chess_board(self,filename = game_save_path):
         with open(filename, "w") as file:
             new_dict = {}
             for key, value in self.chess_board.items():

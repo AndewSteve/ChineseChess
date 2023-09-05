@@ -8,7 +8,7 @@ class 卒(Chess):
             self.chess_img_path = os.path.join(chess_img_path,"卒.png")
         super().init(position)
         
-    def onSelected(self,chess_board:dict[(int,int),Chess]):
+    def onSelected(self,chess_board:dict[(int,int),Chess],BLACK_checkmate,RED_checkmate):
 
         result = []
         if(self.color==ChessColor.RED):
@@ -59,7 +59,7 @@ class 卒(Chess):
                             result.append(
                                 (self.x+1,self.y),
                         )  
-                    if(chess_board.__contains__((self.x,self.y+1))==False or chess_board[(self.x+1,self.y+1)].color==ChessColor.BLACK):
+                    if(chess_board.__contains__((self.x,self.y+1))==False or chess_board[(self.x,self.y+1)].color==ChessColor.BLACK):
                             result.append(
                                 (self.x,self.y+1),
                         )
@@ -125,4 +125,4 @@ class 卒(Chess):
                       (self.x,self.y-1),
                 )
 
-        super().onSelected(result,chess_board)
+        super().onSelected(result,chess_board,BLACK_checkmate,RED_checkmate)

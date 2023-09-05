@@ -8,7 +8,7 @@ class 炮(Chess):
             self.chess_img_path = os.path.join(chess_img_path,"炮.png")
         super().init(position)
         
-    def onSelected(self,chess_board:dict[(int,int),Chess]):
+    def onSelected(self,chess_board:dict[(int,int),Chess],BLACK_checkmate,RED_checkmate):
 
         result = []
 
@@ -127,4 +127,4 @@ class 炮(Chess):
                 result.append((8,self.y))
 
 
-        super().onSelected(result,chess_board)
+        super().onSelected(result,chess_board,BLACK_checkmate,RED_checkmate)

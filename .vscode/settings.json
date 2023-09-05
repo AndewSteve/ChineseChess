@@ -4,6 +4,7 @@
         "collidepoint",
         "MOUSEBUTTONDOWN",
         "pygame",
+        "SRCALPHA",
         "VIDEORESIZE"
     ]
 }
