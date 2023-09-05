@@ -39,7 +39,5 @@ class 士(Chess):
                     if chess_board.__contains__((i,j))==False or chess_board[(i,j)].color!=self.color:
                         result.append((i,j))
 
-        for posi in result:
-            x,y = posi
 
         super().onSelected(result,chess_board)

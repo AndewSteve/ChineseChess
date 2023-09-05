@@ -49,7 +49,7 @@ class Game:
                 if event.type == QUIT:
                     pygame.quit()
                 elif event.type == MOUSEBUTTONDOWN:
-                    self.clickEvent(event)
+                    self.clickEvent()
                 elif event.type == VIDEORESIZE:
                     WIDTH, HEIGHT = event.size[0], event.size[1]
                     update_global_val()
@@ -58,18 +58,26 @@ class Game:
             self.clock.tick(60)
             pygame.display.flip()
 
-    def clickEvent(self,event):
+    def clickEvent(self):
         mouse_x,mouse_y = pygame.mouse.get_pos()
-        selected_chess = self.container.selected_chess
-        if selected_chess == None:
-            if self.container.select_chess((mouse_x,mouse_y)):
+        if self.container.selected_chess == None:
+            print("现在没有选中棋子")
+            if self.container.check_and_select_chess((mouse_x,mouse_y),self.Action_team):
                 selected_chess = self.container.selected_chess
                 self.all_sprites.add(selected_chess.drop_sprite_group,layer = 3)
         else:
-            if  self.container.drop_chess((mouse_x,mouse_y)) or self.container.selected_chess.rect.collidepoint(mouse_x,mouse_y):
+            self.container.check_and_drop_chess((mouse_x,mouse_y))
+            if self.container.selected_chess == None:
+                self.all_sprites.remove_sprites_of_layer(3)
+                self.Action_team = (ActionTeam.RED if self.Action_team == ActionTeam.BLACK else ActionTeam.BLACK)
+            elif self.container.selected_chess.rect.collidepoint(mouse_x,mouse_y):
                 self.all_sprites.remove_sprites_of_layer(3)
                 del self.container.selected_chess.drop_sprite_group
                 del self.container.selected_chess
+            elif self.container.check_and_select_chess((mouse_x,mouse_y),self.Action_team):
+                self.all_sprites.remove_sprites_of_layer(3)
+                selected_chess = self.container.selected_chess
+                self.all_sprites.add(selected_chess.drop_sprite_group,layer = 3)
 
             
 

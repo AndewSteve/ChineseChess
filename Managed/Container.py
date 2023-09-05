@@ -17,7 +17,7 @@ class Container:
             self.chess_sprite_group.add(chess)
         print("初始化棋子")
 
-    def drop_chess(self,abs_posi):
+    def check_and_drop_chess(self,abs_posi):
         abs_x,abs_y = abs_posi
         for dict_posi,drop_sprite in self.selected_chess.drop_point_dict.items():
             if drop_sprite.rect.collidepoint(abs_x,abs_y):
@@ -32,16 +32,23 @@ class Container:
                 self.selected_chess.move(dict_posi)
                 del self.selected_chess.drop_point_dict
                 print(f"棋子{self.selected_chess.__class__.__name__}落到{x}_{y}")
-                return True
-        return False
+                del self.selected_chess.drop_sprite_group
+                del self.selected_chess
+
     
     
 
-    def select_chess(self,posi):
+    def check_and_select_chess(self,posi,action_team):
         x,y =posi
         for dict_posi,chess in self.chess_board.items():
             dict_x,dict_y = dict_posi
             if chess.rect.collidepoint(x,y):
+                print(f"现在碰撞的棋子是{chess.__class__.__name__},阵营是{chess.color},正在行动的阵营是{action_team},两者是否相等：{chess.color.value == action_team.value}")
+                if not chess.color.value == action_team.value:
+                    continue
+                if not self.selected_chess == None:
+                    del self.selected_chess.drop_sprite_group
+                    del self.selected_chess
                 print(f"点击到棋子{chess.__class__.__name__}:({dict_x},{dict_y})")
                 self.selected_chess = chess
                 chess.onSelected(self.chess_board)
