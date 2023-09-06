@@ -8,7 +8,18 @@ class 士(Chess):
             self.chess_img_path = os.path.join(chess_img_path,"仕.png")
         super().init(position)
         
-    def onSelected(self,chess_board:dict[(int,int),Chess],BLACK_checkmate,RED_checkmate):
+    def onSelected(self,chess_board:dict[(int,int),Chess],BLACK_checkmate,RED_checkmate,to_checkmate = False):
+        """具体子类逻辑
+
+        Args:
+            chess_board (dict[(int,int),Chess]): Container传给具体棋子类的棋盘信息
+            BLACK_checkmate (Chess): Container传给父类的"将"信息
+            RED_checkmate (Chess): Container传给父类的"帅"信息
+            to_checkmate (bool, optional): 是否要截获落点数组. Defaults to False.
+
+        Returns:
+            list:tuple: 落点逻辑坐标数组
+        """
         result = []
 
         top_max ,button_max = 7,9
@@ -40,4 +51,7 @@ class 士(Chess):
                         result.append((i,j))
 
 
-        super().onSelected(result,chess_board,BLACK_checkmate,RED_checkmate)
+        if to_checkmate:
+             return result
+        else:
+            super().onSelected(result,chess_board,BLACK_checkmate,RED_checkmate)

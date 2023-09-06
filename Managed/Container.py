@@ -17,6 +17,8 @@ class Container:
         self.initChessBoard()
     
     def initChessBoard(self):
+        """初始化棋子图片,记录将帅位置
+        """
         for posi,chess in self.chess_board.items():
             chess.init(posi)
             self.chess_sprite_group.add(chess)
@@ -28,6 +30,12 @@ class Container:
         print("初始化棋子")
 
     def check_and_drop_chess(self,abs_posi):
+        """对当前选中的棋子落点碰撞检测,点中落点后会删除选中棋子的引用
+
+
+        Args:
+            abs_posi (tuple): 鼠标位置
+        """
         abs_x,abs_y = abs_posi
         for dict_posi,drop_sprite in self.selected_chess.drop_point_dict.items():
             if drop_sprite.rect.collidepoint(abs_x,abs_y):
@@ -52,6 +60,15 @@ class Container:
     
 
     def check_and_select_chess(self,posi,action_team):
+        """对棋盘所有棋子碰撞检测,点中行动方棋子会添加selected_chess引用
+
+        Args:
+            posi (_type_): 鼠标位置
+            action_team (_type_): 当前行动方
+
+        Returns:
+            Boolean: 是否有选中棋子
+        """
         x,y =posi
         for dict_posi,chess in self.chess_board.items():
             dict_x,dict_y = dict_posi
@@ -68,27 +85,56 @@ class Container:
                 return True
         return False
 
+    def checkmate(self):
+        for posi,chess in self.chess_board.items():
+            x,y = posi
+            current_chess = chess
+
+            flag = False
+            drop_list = chess.onSelected(self.chess_board,self.BLACK_checkmate,self.RED_checkmate,True)
+            for drop_point in drop_list:
+                drop_x,drop_y = drop_point
+                if flag:
+                    return True
+        return False
 
     def update_abs_posi(self):
+        """更新所有棋子的屏幕坐标
+        """
         for posi,chess in self.chess_board.items():
             abs_posi = Dict_to_Abs_posi(posi)
             chess.rect.center = abs_posi
 
     def updateChess(self,chess:Chess,new_posi):
+        """更新棋盘字典
+
+        Args:
+            chess (Chess): 棋子对象
+            new_posi (tuple): 新的逻辑坐标
+        """
         old_posi = (chess.x,chess.y)
         self.chess_board.pop(old_posi)
         self.chess_board[new_posi] = chess
 
 
-    def deleteChess(self,posi,chess):
+    def deleteChess(self,posi):
+        """删除字典中的棋子(未使用)
+
+        Args:
+            posi (tuple): 棋子逻辑位置
+        """
         if self.chess_board.__contains__(posi):
-            if not chess:
-                chess = self.chess_board[posi]
+            chess = self.chess_board[posi]
             self.chess_board.pop(posi)
-        chess.onDestroyed()
+            chess.onDestroyed()
         
 
     def load_chess_board(self,filename = game_load_path):
+        """从json文件中加载存档
+
+        Args:
+            filename (str, optional): 默认加载save00.json. Defaults to game_load_path.
+        """
         self.chess_board={}
         with open(filename, "r") as file:
             saved_dict = json.load(file)
@@ -101,6 +147,11 @@ class Container:
         print(f"导入存档:{filename}")
 
     def save_chess_board(self,filename = game_save_path):
+        """保存存档到json文件
+
+        Args:
+            filename (str, optional): 默认保存到save00. Defaults to game_save_path.
+        """
         with open(filename, "w") as file:
             new_dict = {}
             for key, value in self.chess_board.items():
@@ -113,6 +164,9 @@ class Container:
 
 
 def initMap(board):
+    """自定义棋盘
+    """
+    board:dict[(int,int),Chess] = {}
     board[(0, 0)] = 车(ChessColor.RED)
     board[(1, 0)] = 马(ChessColor.RED)
     board[(2, 0)] = 象(ChessColor.RED)
@@ -154,7 +208,9 @@ def initMap(board):
     board[(6, 9)] = 象(ChessColor.BLACK)
     board[(7, 9)] = 马(ChessColor.BLACK)
     board[(8, 9)] = 车(ChessColor.BLACK)
-
+    
+    # container.chess_board = board()
+    # container.initChessBoard()
     # container.save_chess_board("./save/__init__.json")
 
 

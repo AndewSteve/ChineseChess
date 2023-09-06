@@ -28,6 +28,11 @@ class Chess(ABC,pygame.sprite.Sprite):
 
     @abstractmethod
     def init(self,dict_posi):
+        """加载图片
+
+        Args:
+            dict_posi (tuple): 逻辑位置,用于定位屏幕位置
+        """
         self.image = pygame.image.load(self.chess_img_path)
         self.image = scale_chess_img(self.image)
         self.rect = self.image.get_rect()
@@ -36,62 +41,68 @@ class Chess(ABC,pygame.sprite.Sprite):
 
     @abstractmethod
     def onSelected(self,drop_point_list,chess_board,BLACK_checkmate,RED_checkmate):
+        """展示落点
 
+        Args:
+            drop_point_list (list:tuple): 具体棋子类传给父类的落点数组,由父类处理
+            chess_board (dict[(int,int),Chess]): Container传给具体棋子类的棋盘信息
+            BLACK_checkmate (Chess): Container传给父类的"将"信息
+            RED_checkmate (Chess): Container传给父类的"帅"信息
+        """
 
         #将帅不相见
-        if (abs(BLACK_checkmate.x - RED_checkmate.x)==1) and ((self is BLACK_checkmate) or (self is RED_checkmate)):
-            target = (BLACK_checkmate if self is RED_checkmate else RED_checkmate)
-            target_colum_empty = True
-            temp_min,temp_max = min(target.y,self.y),max(target.y,self.y)
-            temp_x = target.x
-            for temp_y in range(temp_min+1,temp_max):
-                if chess_board.__contains__((temp_x,temp_y)):
-                    target_colum_empty = False
-                    break
-            if target_colum_empty:
-                temp_list = []
-                for drop_point in drop_point_list:
-                    x,_ = drop_point
-                    if x == target.x:
-                        temp_list.append(drop_point)
-                for drop_point in temp_list:
-                        drop_point_list.remove(drop_point)
-        elif (BLACK_checkmate.x == RED_checkmate.x) and (self.x == BLACK_checkmate.x):
-            flag = True
-            temp_x = BLACK_checkmate.x
-            for temp_y in range(RED_checkmate.y+1,self.y):
-                if chess_board.__contains__((temp_x,temp_y)):
-                    flag = False
-                    break
-            if flag:
-                for temp_y in range(self.y+1,BLACK_checkmate.y):
-                    if chess_board.__contains__((temp_x,temp_y)):
-                        flag = False
-                        break
-            if flag:
-                temp_list = []
-                for drop_point in drop_point_list:
-                    _,y = drop_point
-                    if y == self.y:
-                        temp_list.append(drop_point)
-                for drop_point in temp_list:
-                    drop_point_list.remove(drop_point)
+        drop_point_list = self.check_king_opposite(drop_point_list,chess_board,BLACK_checkmate,RED_checkmate)
         
 
         self.drop_point_dict:dict[(int,int),pygame.sprite.Sprite] = {}
         self.drop_sprite_group:pygame.sprite.Group = pygame.sprite.Group()
         self.drop_sprite_group.add(DropPoint(DropPointKind.SELECTED,(self.x,self.y)))
         for drop_point_posi in drop_point_list:
-            if chess_board.__contains__(drop_point_posi):
+            if chess_board.__contains__(drop_point_posi):#可吃子
                 chess_color = chess_board[drop_point_posi].color
                 if chess_color == ChessColor.BLACK:
                     drop_point_sprite = DropPoint(DropPointKind.EATABLE_RED,drop_point_posi)
                 else:
                     drop_point_sprite = DropPoint(DropPointKind.EATABLE_BLACK,drop_point_posi)
             else:
-                drop_point_sprite = DropPoint(DropPointKind.TIP,drop_point_posi)
+                drop_point_sprite = DropPoint(DropPointKind.TIP,drop_point_posi)#落子提示
             self.drop_point_dict[drop_point_posi] = drop_point_sprite
             self.drop_sprite_group.add(drop_point_sprite)
+
+
+    def check_king_opposite(self,drop_point_list,chess_board,BLACK_checkmate,RED_checkmate):
+        """将帅不相见
+        """
+        fileted_list = []
+        target_colum_empty = True
+        if (self is BLACK_checkmate) or (self is RED_checkmate):
+            if (abs(BLACK_checkmate.x - RED_checkmate.x)==1) or (BLACK_checkmate.x == RED_checkmate.x):
+                target = (BLACK_checkmate if self is RED_checkmate else RED_checkmate)
+                temp_x = target.x
+                for temp_y in range(RED_checkmate.y+1,BLACK_checkmate.y):
+                    if chess_board.__contains__((temp_x,temp_y)):
+                        target_colum_empty = False
+                        break
+                if target_colum_empty:
+                    for drop_point in drop_point_list:
+                        x,_ = drop_point
+                        if x == target.x:
+                            fileted_list.append(drop_point)
+        elif (self.x == BLACK_checkmate.x) and (BLACK_checkmate.x == RED_checkmate.x):
+            temp_x = BLACK_checkmate.x
+            for temp_y in range(RED_checkmate.y+1,BLACK_checkmate.y):
+                if chess_board.__contains__((temp_x,temp_y)):
+                    if not (chess_board[(temp_x,temp_y)] is self):
+                        target_colum_empty = False
+                        break
+            if target_colum_empty:
+                for drop_point in drop_point_list:
+                    x,_ = drop_point
+                    if not x == self.x:
+                        fileted_list.append(drop_point)
+        for drop_point in fileted_list:
+            drop_point_list.remove(drop_point)
+        return drop_point_list
 
     # def draw_drop_points(self,screen):
     #     self.drop_sprite_group.update()
