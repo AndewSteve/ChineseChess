@@ -3,6 +3,7 @@ from Managed.ChessModel import Chess,DropPoint,ChessColor,卒,象,士,炮,马,�
 import json
 from Managed.Game import Dict_to_Abs_posi
 
+game_init_path = "./save/__init__.json"
 game_save_path = "./save/save00.json"
 game_load_path = "./save/save00.json"
 
@@ -129,13 +130,17 @@ class Container:
             chess.onDestroyed()
         
 
-    def load_chess_board(self,filename = game_load_path):
+    def load_chess_board(self,remake = False,filename = game_load_path):
         """从json文件中加载存档
 
         Args:
             filename (str, optional): 默认加载save00.json. Defaults to game_load_path.
         """
         self.chess_board={}
+        self.chess_sprite_group.empty()
+        self.selected_chess = None
+        if remake:
+            filename = game_init_path
         with open(filename, "r") as file:
             saved_dict = json.load(file)
             for saved_key, saved_value in saved_dict.items():
@@ -161,6 +166,7 @@ class Container:
                 new_dict[new_key] = new_value
             json.dump(new_dict, file,indent=4,ensure_ascii=False)
         print(f"保存存档:{filename}")
+        return True
 
 
 def initMap(board):
@@ -208,7 +214,7 @@ def initMap(board):
     board[(6, 9)] = 象(ChessColor.BLACK)
     board[(7, 9)] = 马(ChessColor.BLACK)
     board[(8, 9)] = 车(ChessColor.BLACK)
-    
+
     # container.chess_board = board()
     # container.initChessBoard()
     # container.save_chess_board("./save/__init__.json")

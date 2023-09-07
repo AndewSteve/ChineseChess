@@ -7,12 +7,16 @@ from pygame.locals import *
 #region 游戏资源
 chessBoard_img_path = './Resource/img/ChessBoard'
 icon_path = './Resource/img/icon'
+front_path = './Resource/front/FZLBJW.ttf'
+
 chessBoard_img = 'chessboard.png'
 backGround_img = 'background.jpg'
-team_tip_img = '走棋.png'
+#team_tip_img = '走棋.png'    现在不用图片提示了
 victory_tip_img = '获胜.png'
 failed_tip_img = '败北.png'
-front_path = './Resource/front/LiuGongQuanBiaoZhunKaiShu-2.ttf'
+save_img = 'save.png'
+quit_img = 'quit.png'
+remake_img = 'remake.png'
 #endregion
 
 
@@ -25,6 +29,8 @@ color_red = (255,0,0)
 #region 游戏设置
 tipping_minutes = 1
 warning_minutes = 2
+log_capital = 5
+log_delta_alpha = 40
 #endregion
 
 
@@ -34,11 +40,8 @@ GAME_WIDTH,GAME_HEIGHT = 1200,780
 
 #提示窗口大小
 TIP_WIDTH,TIP_HEIGHT = 300,780
-ACTION_TIP_ORI_BLACK,ACTION_TIP_ORI_RED = (100,480),(100,180)
-ACTION_TIME_TIP_ORI_BLACK,ACTION_TIME_TIP_ORI_RED = (120,600),(120,300)
-
-#日志窗口原点
-LOG_ORI = 900,0
+ACTION_TIP_ORI_BLACK,ACTION_TIP_ORI_RED = (60,420),(60,240)
+ACTION_TIME_TIP_ORI_BLACK,ACTION_TIME_TIP_ORI_RED = (100,480),(100,300)
 
 #棋盘窗口大小
 CHESSBOARD_WIDTH, CHESSBOARD_HEIGHT = 600, 660
@@ -50,6 +53,12 @@ CHESS_SIZE_X,CHESS_SIZE_Y = 60,60
 #游戏左上角到第一个棋子间的位置差
 OFFSET_X,OFFSET_Y = 360,120
 
+#日志窗口原点
+LOG_ORI = 900,0
+SAVE_ORI = (TIP_WIDTH//2-140,TIP_HEIGHT//2-77*5)
+QUIT_ORI = (TIP_WIDTH//2-140,TIP_HEIGHT//2-77*3)
+REMAKE_ORI = (TIP_WIDTH//2-140,TIP_HEIGHT//2-77)
+
 #渲染图层
 CHESS_LAYER = 4#棋子层
 DROP_POINT_LAYER = 3#落点层
@@ -57,7 +66,7 @@ DROP_POINT_LAYER = 3#落点层
 def update_global_val(game_WIDTH, game_HEIGHT):
     global GAME_WIDTH,GAME_HEIGHT,TIP_WIDTH,TIP_HEIGHT,LOG_ORI,CHESSBOARD_ORI,OFFSET_X,OFFSET_Y
     global GAMEOVER_TIP_ORI_RED,GAMEOVER_TIP_ORI_BLACK,ACTION_TIP_ORI_BLACK,ACTION_TIP_ORI_RED
-    global ACTION_TIME_TIP_ORI_BLACK,ACTION_TIME_TIP_ORI_RED
+    global ACTION_TIME_TIP_ORI_BLACK,ACTION_TIME_TIP_ORI_RED,SAVE_ORI,QUIT_ORI,REMAKE_ORI
     
     GAME_WIDTH,GAME_HEIGHT = game_WIDTH, game_HEIGHT
     TIP_WIDTH,TIP_HEIGHT = (GAME_WIDTH - CHESSBOARD_WIDTH)//2,GAME_HEIGHT
@@ -66,8 +75,11 @@ def update_global_val(game_WIDTH, game_HEIGHT):
     OFFSET_X,OFFSET_Y = (TIP_WIDTH + CHESS_SIZE_X),(GAME_HEIGHT-CHESSBOARD_HEIGHT)//2 + CHESS_SIZE_Y
     GAMEOVER_TIP_ORI_BLACK = (TIP_WIDTH+CHESSBOARD_WIDTH//3,OFFSET_Y+CHESS_SIZE_Y)
     GAMEOVER_TIP_ORI_RED = (TIP_WIDTH+CHESSBOARD_WIDTH//3,OFFSET_Y+CHESS_SIZE_Y*6)
-    ACTION_TIP_ORI_BLACK,ACTION_TIP_ORI_RED = (TIP_WIDTH//3,OFFSET_Y+CHESS_SIZE_Y*6),(TIP_WIDTH//3,OFFSET_Y+CHESS_SIZE_Y)
-    ACTION_TIME_TIP_ORI_BLACK,ACTION_TIME_TIP_ORI_RED = (TIP_WIDTH/2.5,OFFSET_Y+CHESS_SIZE_Y*8),(TIP_WIDTH/2.5,OFFSET_Y+CHESS_SIZE_Y*3)
+    ACTION_TIP_ORI_BLACK,ACTION_TIP_ORI_RED = (TIP_WIDTH//5,OFFSET_Y+CHESS_SIZE_Y*5),(TIP_WIDTH//5,OFFSET_Y+CHESS_SIZE_Y*2)
+    ACTION_TIME_TIP_ORI_BLACK,ACTION_TIME_TIP_ORI_RED = (TIP_WIDTH/3,OFFSET_Y+CHESS_SIZE_Y*6),(TIP_WIDTH/3,OFFSET_Y+CHESS_SIZE_Y*3)
+    SAVE_ORI = (TIP_WIDTH//2-140,TIP_HEIGHT//2-77*5)
+    QUIT_ORI = (TIP_WIDTH//2-140,TIP_HEIGHT//2-77*3)
+    REMAKE_ORI = (TIP_WIDTH//2-140,TIP_HEIGHT//2-77)
 
 
 #endregion
@@ -82,16 +94,19 @@ class Game:
     Action_team :ActionTeam= None
     def __init__(self):
         pygame.init()
-        self.font = pygame.font.Font(front_path, 20)
-        self.time_font = pygame.font.Font(front_path, 36)
+        self.font = pygame.font.Font(front_path, 32)
+        self.team_tip_font = pygame.font.Font(front_path, 60)
+        self.time_font = pygame.font.Font(front_path, 60)
         pygame.display.set_caption("中国象棋")  # 设置游戏名字
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.clock = pygame.time.Clock()
         self.Action_team  = ActionTeam.BLACK
         self.action_timer = 0
         self.last_frame_time = 0
-        self.message = f"现在是{self.Action_team.name}的回合"
+        self.message = [f"现在是{self.Action_team.name}的回合"]
         self.game_over = False
+        self.game_saved = True
+        self.game_running = True
 
     def setContainer(self,container):
         self.container :Container = container
@@ -100,13 +115,16 @@ class Game:
     def run(self):
         self.init_screen()
         self.update()
-        while True:
+        while self.game_running:
             for event in pygame.event.get():
                 if event.type == QUIT:
                     pygame.quit()
-                elif event.type == MOUSEBUTTONDOWN:
-                    if not self.game_over:
-                        self.clickEvent()
+                elif event.type == MOUSEBUTTONDOWN and event.button == 1:
+                    mouse_posi = pygame.mouse.get_pos()
+                    if self.log_surface_rect.collidepoint(mouse_posi):
+                        self.MenuClickEven(mouse_posi)
+                    elif not self.game_over:
+                        self.ChessBoardClickEvent(mouse_posi)
                 elif event.type == VIDEORESIZE:
                     temp_WIDTH, temp_HEIGHT = event.size[0], event.size[1]
                     if temp_WIDTH>1000 and temp_HEIGHT>700:
@@ -115,36 +133,37 @@ class Game:
                         self.update()
             self.update()
             self.clock.tick(60)
+        pygame.quit()
 
-    def clickEvent(self):
-        mouse_x,mouse_y = pygame.mouse.get_pos()
+    def ChessBoardClickEvent(self,mouse_posi):
         if self.container.selected_chess == None:#现在没有选中棋子
-            if self.container.check_and_select_chess((mouse_x,mouse_y),self.Action_team):#选择到棋子
+            if self.container.check_and_select_chess(mouse_posi,self.Action_team):#选择到棋子
                 selected_chess = self.container.selected_chess
                 self.all_sprites.add(selected_chess.drop_sprite_group,layer = DROP_POINT_LAYER)#添加落点展示
         else:
-            self.container.check_and_drop_chess((mouse_x,mouse_y))#检查是否点击到落点
+            self.container.check_and_drop_chess(mouse_posi)#检查是否点击到落点
             if self.container.selected_chess == None:#点击到落点
                 self.all_sprites.remove_sprites_of_layer(DROP_POINT_LAYER)#清空落点
                 if self.container.RED_checkmate == None or self.container.BLACK_checkmate == None:#有将死
                     self.game_over = True
-                    self.message = (f"游戏结束，{self.Action_team.name}胜利")
+                    self.log_info(f"游戏结束，{self.Action_team.name}胜利")
                     print(f"游戏结束，{self.Action_team}胜利")
+                    self.game_saved = True
                 else:
                     self.Action_team = (ActionTeam.RED if self.Action_team == ActionTeam.BLACK else ActionTeam.BLACK)#换手
                     self.action_timer = 0
-                    self.message = (f"现在是{self.Action_team.name}的回合")
+                    self.log_info(f"现在是{self.Action_team.name}的回合")
+                    self.game_saved = False
 
-            elif self.container.selected_chess.rect.collidepoint(mouse_x,mouse_y):#点击到当前选中的棋子，取消选择
+            elif self.container.selected_chess.rect.collidepoint(mouse_posi):#点击到当前选中的棋子，取消选择
                 self.all_sprites.remove_sprites_of_layer(DROP_POINT_LAYER)
                 del self.container.selected_chess.drop_sprite_group
                 del self.container.selected_chess
-            elif self.container.check_and_select_chess((mouse_x,mouse_y),self.Action_team):#重新选择友方棋子
+            elif self.container.check_and_select_chess(mouse_posi,self.Action_team):#重新选择友方棋子
                 self.all_sprites.remove_sprites_of_layer(DROP_POINT_LAYER)
                 selected_chess = self.container.selected_chess
                 self.all_sprites.add(selected_chess.drop_sprite_group,layer = DROP_POINT_LAYER)
 
-        # self.update()
 
     def update(self):
         """刷新屏幕
@@ -154,13 +173,13 @@ class Game:
         """
         self.chessBoard_surface.blit(self.board_img,(0,0))
         self.display_action()
-        self.log_info()
 
         self.screen.blit(self.background_img, (0, 0))
         self.screen.blit(self.chessBoard_surface, CHESSBOARD_ORI)
-        self.screen.blit(self.log_surface,LOG_ORI)
         self.screen.blit(self.tip_surface,(0,0))
+        self.screen.blit(self.log_surface,LOG_ORI)
 
+        self.log_info()
         self.all_sprites.update()
         self.all_sprites.draw(self.screen)
 
@@ -169,6 +188,7 @@ class Game:
         pygame.display.flip()
 
 
+    #初始化屏幕、加载图片
     def init_screen(self):
         #背景图片
         background_img = pygame.image.load(os.path.join(chessBoard_img_path,backGround_img))
@@ -181,28 +201,42 @@ class Game:
         self.chessBoard_surface.blit(self.board_img,(0,0))
 
         #信息版
-        self.team_tip_img = pygame.image.load(os.path.join(icon_path,team_tip_img))
+        self.teamTipRed_sub_surface = self.team_tip_font.render("红方走棋",True,color_white)
+        self.teamTipBlack_sub_surface = self.team_tip_font.render("黑方走棋",True,color_white)
+        #self.team_tip_img = pygame.image.load(os.path.join(icon_path,team_tip_img))
         self.tip_surface = pygame.Surface((TIP_WIDTH, TIP_HEIGHT), pygame.SRCALPHA)
         self.display_action()
         #胜利图片
         self.failed_img = pygame.image.load(os.path.join(icon_path,victory_tip_img))
+        self.failed_img = pygame.transform.smoothscale(self.failed_img, (210, 95))
         self.victory_img = pygame.image.load(os.path.join(icon_path,failed_tip_img))
+        self.victory_img = pygame.transform.smoothscale(self.victory_img, (210, 95))
 
         #日志版
+        self.save_img = pygame.image.load(os.path.join(icon_path,save_img))
+        self.save_img_rect = self.save_img.get_rect()
+        self.save_img_rect.center = TIP_WIDTH + TIP_WIDTH/2 + CHESSBOARD_WIDTH,TIP_HEIGHT/2-77*4
+        self.quit_img = pygame.image.load(os.path.join(icon_path,quit_img))
+        self.quit_img_rect = self.quit_img.get_rect()
+        self.quit_img_rect.center = TIP_WIDTH + TIP_WIDTH/2 + CHESSBOARD_WIDTH,TIP_HEIGHT/2-77*2
+        self.remake_img = pygame.image.load(os.path.join(icon_path,remake_img))
+        self.remake_img_rect = self.remake_img.get_rect()
+        self.remake_img_rect.center = TIP_WIDTH + TIP_WIDTH/2 + CHESSBOARD_WIDTH,TIP_HEIGHT/2
         self.log_surface = pygame.Surface((TIP_WIDTH, TIP_HEIGHT), pygame.SRCALPHA)
         self.log_surface.fill((0, 0, 0, 0))
-        self.log_info()
+        self.log_surface_rect = self.log_surface.get_rect()
+        self.log_surface_rect.center = TIP_WIDTH + TIP_WIDTH/2 + CHESSBOARD_WIDTH,TIP_HEIGHT/2
 
         #加载到屏幕
         self.screen.blit(self.background_img, (0, 0))
         self.screen.blit(self.log_surface,LOG_ORI)
         self.screen.blit(self.chessBoard_surface, CHESSBOARD_ORI)
         self.screen.blit(self.tip_surface,(0,0))
+        self.log_info()
         self.container.update_abs_posi()
         pygame.display.flip()
 
-
-    #信息版
+    #左侧信息版
     def display_action(self,action_team:ActionTeam= None):
         """展示行动方和计时
 
@@ -229,13 +263,15 @@ class Game:
         time_sub_surface = self.time_font.render(formatted_time,True,color)
         #endregion
 
+        #region 行动方指示
         self.tip_surface.fill((0, 0, 0, 0))
         if action_team == ActionTeam.RED:
-            self.tip_surface.blit(self.team_tip_img,ACTION_TIP_ORI_RED)
+            self.tip_surface.blit(self.teamTipRed_sub_surface,ACTION_TIP_ORI_RED)
             self.tip_surface.blit(time_sub_surface,ACTION_TIME_TIP_ORI_RED)
         else:
-            self.tip_surface.blit(self.team_tip_img,ACTION_TIP_ORI_BLACK)
+            self.tip_surface.blit(self.teamTipBlack_sub_surface,ACTION_TIP_ORI_BLACK)
             self.tip_surface.blit(time_sub_surface,ACTION_TIME_TIP_ORI_BLACK)
+        #endregion
 
     #展示结束图片
     def display_winner(self):
@@ -257,16 +293,53 @@ class Game:
             text (str, optional): 默认输出上一条信息
         """
         if not text == "":
-            if not self.message == text:
-                self.message = text
+            if len(self.message)>log_capital:
+                self.message.pop(0)
+            self.message.append(text)
+
         self.log_surface.fill((0, 0, 0, 0))
-        text_sub_surface = self.font.render(self.message,True,color_white)
-        # text_x = (TIP_WIDTH - text_sub_surface.get_width()) // 2
-        # text_y = (TIP_HEIGHT - text_sub_surface.get_height()) // 2
-        self.log_surface.blit(text_sub_surface,(0,0))
+
+        self.log_surface.blit(self.save_img,SAVE_ORI)
+        self.log_surface.blit(self.quit_img,QUIT_ORI)
+        self.log_surface.blit(self.remake_img,REMAKE_ORI)
+
+
+        y = TIP_HEIGHT - self.font.get_height()
+        for depth in range(len(self.message)):
+            color = (255-log_delta_alpha*depth,255-log_delta_alpha*depth,255-log_delta_alpha*depth)
+            text_sub_surface = self.font.render(self.message[len(self.message)-1-depth],True,color)
+            self.log_surface.blit(text_sub_surface,(0,y))
+            y -= self.font.get_height()
+
+
+
+    #右侧菜单
+    def MenuClickEven(self,mouse_posi):
+        if self.save_img_rect.collidepoint(mouse_posi):
+            if (not self.game_over) and (self.container.save_chess_board()):
+                self.game_saved = True
+                self.log_info("已将存档保存到save00")
+            else:
+                self.log_info("不允许保存死局,或发生文件错误")
+        elif self.quit_img_rect.collidepoint(mouse_posi):
+            if not self.game_saved:
+                self.log_info("游戏未保存,是否要退出?(退出请直接结束程序)")
+            else:
+                self.game_running = False
+        elif self.remake_img_rect.collidepoint(mouse_posi):
+            self.container.load_chess_board(remake= True)
+            self.all_sprites.remove_sprites_of_layer(CHESS_LAYER)
+            self.all_sprites.remove_sprites_of_layer(DROP_POINT_LAYER)
+            self.all_sprites.empty()
+            container = self.container
+            self.setContainer(container)
+            self.init_screen()
+            
+
 
 def scale_chess_img(image,enlargeSize = 1):#将棋子素材缩放到合适比例
-    return pygame.transform.scale(image,(CHESS_SIZE_X*enlargeSize, CHESS_SIZE_Y*enlargeSize))
+    return pygame.transform.smoothscale(image, (CHESS_SIZE_X*enlargeSize, CHESS_SIZE_Y*enlargeSize))
+    #return pygame.transform.scale(image,(CHESS_SIZE_X*enlargeSize, CHESS_SIZE_Y*enlargeSize))
 
 def Dict_to_Abs_posi(dict_posi):
     """将逻辑坐标转化为屏幕坐标

@@ -129,9 +129,7 @@ class 车(Chess):
                     break
                 elif(chess_board[self.x,self.y+i+1].color==ChessColor.BLACK):
                     break     
-        for posi in result:
-            x,y = posi
-            print(f"{x}_{y}")
+
             
         if to_checkmate:
              return result

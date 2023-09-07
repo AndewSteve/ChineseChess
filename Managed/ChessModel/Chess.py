@@ -3,12 +3,21 @@ import os
 from abc import abstractmethod,ABC
 from enum import Enum
 from Managed.Game import Dict_to_Abs_posi,scale_chess_img
+
+#region 游戏资源
 chess_img_path = "./Resource/img/Chess"
 #dropPoint_img_path = "./Resource/img/Chess"
 drop_point_img = "提示.png"
 eatable_red_img = "可击杀_红色_底色.png"
 eatable_black_img = "可击杀_黑色_底色.png"
 selected_img = "selected.png"
+#endregion
+
+#region 常量
+eatable_enlarge = 1.1
+selected_enlarge = 1.5
+#endregion
+
 
 class DropPointKind(Enum):
     TIP = 1
@@ -137,13 +146,13 @@ class DropPoint(pygame.sprite.Sprite):
             image = drop_point_img
         elif kind == DropPointKind.EATABLE_BLACK:
             image = eatable_black_img
-            enlargeSize = 1.3
+            enlargeSize = eatable_enlarge
         elif kind == DropPointKind.EATABLE_RED:
             image = eatable_red_img
-            enlargeSize = 1.3
+            enlargeSize = eatable_enlarge
         else:
             image = selected_img
-            enlargeSize = 1.5
+            enlargeSize = selected_enlarge
         self.image = pygame.image.load(os.path.join(chess_img_path,image))
         self.image = scale_chess_img(self.image,enlargeSize)
         self.rect = self.image.get_rect()

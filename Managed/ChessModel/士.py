@@ -22,33 +22,22 @@ class 士(Chess):
         """
         result = []
 
-        top_max ,button_max = 7,9
-        left_max,right_max = 3,5
-        self_posi = pygame.math.Vector2(self.x,self.y)
-        if self.color == ChessColor.RED:
-            top_max ,button_max = 0,2
+        possible = [(3,0),(5,0),(4,1),(3,2),(5,2)]
 
-        ori = pygame.math.Vector2((left_max+right_max)/2,(top_max+button_max)/2)
-        self_magnitude = (ori-self_posi).length()
-    
-        pre_select = [(self.x+1,self.y+1),
-                      (self.x+1,self.y),
-                      (self.x+1,self.y-1),
-                      (self.x,self.y+1),
-                      (self.x,self.y-1),
-                      (self.x-1,self.y+1),
-                      (self.x-1,self.y),
-                      (self.x-1,self.y-1),]
+        if self.color == ChessColor.BLACK:
+            for i in range(len(possible)):
+                x,y = possible[i]
+                possible[i] = x,y+7
 
+        around = [(self.x+1,self.y+1),
+                  (self.x+1,self.y-1),
+                  (self.x-1,self.y+1),
+                  (self.x-1,self.y-1),]
 
-        for i in range(left_max,right_max+1):
-            for j in range(top_max,button_max+1):
-                if (i,j) in pre_select:
-                    pre_magnitude = (ori-pygame.math.Vector2(i,j)).length()
-                    if pre_magnitude == self_magnitude:
-                        continue
-                    if chess_board.__contains__((i,j))==False or chess_board[(i,j)].color!=self.color:
-                        result.append((i,j))
+        for posi in around:
+            if possible.__contains__(posi):
+                if chess_board.__contains__(posi)==False or chess_board[posi].color!=self.color:
+                        result.append(posi)
 
 
         if to_checkmate:
