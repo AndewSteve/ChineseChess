@@ -21,112 +21,112 @@ class 卒(Chess):
             list:tuple: 落点逻辑坐标数组
         """
         result = []
-        if(self.color==ChessColor.RED):
+        if(self.color==ChessColor.BLACK):
             if(self.y>4):
                 if(self.x==0 and self.y==9):
-                    if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.BLACK):
+                    if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.RED):
                             result.append(
                                 (self.x+1,self.y),
                         )
                 elif(self.x==8 and self.y==9):
-                    if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.BLACK):
+                    if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.RED):
                             result.append(
                                 (self.x-1,self.y),
                         )
                 elif(self.x==0):
-                    if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.BLACK):
+                    if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.RED):
                             result.append(
                                 (self.x+1,self.y),
                         )
-                    if(chess_board.__contains__((self.x,self.y+1))==False or chess_board[(self.x+1,self.y+1)].color==ChessColor.BLACK):
+                    if(chess_board.__contains__((self.x,self.y+1))==False or chess_board[(self.x+1,self.y+1)].color==ChessColor.RED):
                             result.append(
                                 (self.x,self.y+1),
                         )
                 elif(self.x==8):
-                    if(chess_board.__contains__((self.x,self.y+1))==False or chess_board[(self.x+1,self.y+1)].color==ChessColor.BLACK):
+                    if(chess_board.__contains__((self.x,self.y+1))==False or chess_board[(self.x+1,self.y+1)].color==ChessColor.RED):
                             result.append(
                                 (self.x,self.y+1),
                         )
-                    if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.BLACK):
+                    if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.RED):
                             result.append(
                                 (self.x-1,self.y),
                         )
                 elif(self.y==9):
-                    if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.BLACK):
+                    if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.RED):
                             result.append(
                                 (self.x-1,self.y),
                         )
-                    if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.BLACK):
+                    if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.RED):
                             result.append(
                                 (self.x+1,self.y),
                         )        
                 else:
-                    if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.BLACK):
+                    if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.RED):
                             result.append(
                                 (self.x-1,self.y),
                         )
-                    if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.BLACK):
+                    if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.RED):
                             result.append(
                                 (self.x+1,self.y),
                         )  
-                    if(chess_board.__contains__((self.x,self.y+1))==False or chess_board[(self.x,self.y+1)].color==ChessColor.BLACK):
+                    if(chess_board.__contains__((self.x,self.y+1))==False or chess_board[(self.x,self.y+1)].color==ChessColor.RED):
                             result.append(
                                 (self.x,self.y+1),
                         )
             else:
-                if(chess_board.__contains__((self.x,self.y+1))==False or chess_board[(self.x,self.y+1)].color==ChessColor.BLACK):
+                if(chess_board.__contains__((self.x,self.y+1))==False or chess_board[(self.x,self.y+1)].color==ChessColor.RED):
                             result.append(
                                 (self.x,self.y+1),
                         )
-        elif(self.color==ChessColor.BLACK):
+        elif(self.color==ChessColor.RED):
             if(self.y<5):
                     if(self.x==self.y==0):
-                        if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.RED):
+                        if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.BLACK):
                             result.append(
                                 (self.x+1,self.y),
                         )
                     elif(self.x==8 and self.y==0):
-                        if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.RED):
+                        if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.BLACK):
                             result.append(
                                 (self.x-1,self.y),
                             )
                     elif(self.x==0):
-                        if(chess_board.__contains__((self.x,self.y-1))==False or chess_board[(self.x,self.y-1)].color==ChessColor.RED):
+                        if(chess_board.__contains__((self.x,self.y-1))==False or chess_board[(self.x,self.y-1)].color==ChessColor.BLACK):
                             result.append(
                                 (self.x,self.y-1),
                             )
-                        if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.RED):
+                        if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.BLACK):
                             result.append(
                                 (self.x+1,self.y),
                         )
                     elif(self.x==8):
-                        if(chess_board.__contains__((self.x,self.y-1))==False or chess_board[(self.x,self.y-1)].color==ChessColor.RED):
+                        if(chess_board.__contains__((self.x,self.y-1))==False or chess_board[(self.x,self.y-1)].color==ChessColor.BLACK):
                             result.append(
                                 (self.x,self.y-1),
                             )
-                        if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.RED):
+                        if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.BLACK):
                             result.append(
                                 (self.x-1,self.y),
                             )
                     elif(self.y==0):
-                        if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.RED):
+                        if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.BLACK):
                             result.append(
                                 (self.x+1,self.y),
                         )
-                        if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.RED):
+                        if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.BLACK):
                             result.append(
                                 (self.x-1,self.y),
                             )
                     else:
-                        if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.RED):
+                        if(chess_board.__contains__((self.x+1,self.y))==False or chess_board[(self.x+1,self.y)].color==ChessColor.BLACK):
                             result.append(
                                 (self.x+1,self.y),
                         )
-                        if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.RED):
+                        if(chess_board.__contains__((self.x-1,self.y))==False or chess_board[(self.x-1,self.y)].color==ChessColor.BLACK):
                             result.append(
                                 (self.x-1,self.y),
                             )
-                        if(chess_board.__contains__((self.x,self.y-1))==False or chess_board[(self.x,self.y-1)].color==ChessColor.RED):
+                        if(chess_board.__contains__((self.x,self.y-1))==False or chess_board[(self.x,self.y-1)].color==ChessColor.BLACK):
                             result.append(
                                 (self.x,self.y-1),
                             )                     

@@ -23,59 +23,6 @@ class 车(Chess):
         """
 
         result = []
-        if(self.color==ChessColor.RED):
-            #向左走
-            for i in range(self.x):
-                if(chess_board.__contains__((self.x-i-1,self.y))==False ):
-                    result.append(
-                            (self.x-i-1,self.y),
-                    )
-                elif(chess_board[(self.x-i-1,self.y)].color==ChessColor.BLACK):
-                    result.append(
-                            (self.x-i-1,self.y),
-                    )
-                    break
-                elif(chess_board[(self.x-i-1,self.y)].color==ChessColor.RED):
-                    break
-            #向右走
-            for i in range(8-self.x):
-                if(chess_board.__contains__((self.x+i+1,self.y))==False ):
-                    result.append(
-                            (self.x+i+1,self.y),
-                    )
-                elif(chess_board[(self.x+i+1,self.y)].color==ChessColor.BLACK):
-                    result.append(
-                            (self.x+i+1,self.y),
-                    )
-                    break
-                elif(chess_board[(self.x+i+1,self.y)].color==ChessColor.RED):
-                    break
-            #向上走
-            for i in range(self.y):
-                if(chess_board.__contains__((self.x,self.y-i-1))==False ):
-                    result.append(
-                            (self.x,self.y-i-1),
-                    )
-                elif(chess_board[(self.x,self.y-i-1)].color==ChessColor.BLACK):
-                    result.append(
-                            (self.x,self.y-i-1),
-                    )
-                    break
-                elif(chess_board[self.x,self.y-i-1].color==ChessColor.RED):
-                    break
-            #向下走
-            for i in range(9-self.y):
-                if(chess_board.__contains__((self.x,self.y+i+1))==False ):
-                    result.append(
-                            (self.x,self.y+i+1),
-                    )
-                elif(chess_board[(self.x,self.y+i+1)].color==ChessColor.BLACK):
-                    result.append(
-                            (self.x,self.y+i+1),
-                    )
-                    break
-                elif(chess_board[self.x,self.y+i+1].color==ChessColor.RED):
-                    break
         if(self.color==ChessColor.BLACK):
             #向左走
             for i in range(self.x):
@@ -128,6 +75,59 @@ class 车(Chess):
                     )
                     break
                 elif(chess_board[self.x,self.y+i+1].color==ChessColor.BLACK):
+                    break
+        if(self.color==ChessColor.RED):
+            #向左走
+            for i in range(self.x):
+                if(chess_board.__contains__((self.x-i-1,self.y))==False ):
+                    result.append(
+                            (self.x-i-1,self.y),
+                    )
+                elif(chess_board[(self.x-i-1,self.y)].color==ChessColor.BLACK):
+                    result.append(
+                            (self.x-i-1,self.y),
+                    )
+                    break
+                elif(chess_board[(self.x-i-1,self.y)].color==ChessColor.RED):
+                    break
+            #向右走
+            for i in range(8-self.x):
+                if(chess_board.__contains__((self.x+i+1,self.y))==False ):
+                    result.append(
+                            (self.x+i+1,self.y),
+                    )
+                elif(chess_board[(self.x+i+1,self.y)].color==ChessColor.BLACK):
+                    result.append(
+                            (self.x+i+1,self.y),
+                    )
+                    break
+                elif(chess_board[(self.x+i+1,self.y)].color==ChessColor.RED):
+                    break
+            #向上走
+            for i in range(self.y):
+                if(chess_board.__contains__((self.x,self.y-i-1))==False ):
+                    result.append(
+                            (self.x,self.y-i-1),
+                    )
+                elif(chess_board[(self.x,self.y-i-1)].color==ChessColor.BLACK):
+                    result.append(
+                            (self.x,self.y-i-1),
+                    )
+                    break
+                elif(chess_board[self.x,self.y-i-1].color==ChessColor.RED):
+                    break
+            #向下走
+            for i in range(9-self.y):
+                if(chess_board.__contains__((self.x,self.y+i+1))==False ):
+                    result.append(
+                            (self.x,self.y+i+1),
+                    )
+                elif(chess_board[(self.x,self.y+i+1)].color==ChessColor.BLACK):
+                    result.append(
+                            (self.x,self.y+i+1),
+                    )
+                    break
+                elif(chess_board[self.x,self.y+i+1].color==ChessColor.RED):
                     break     
 
             

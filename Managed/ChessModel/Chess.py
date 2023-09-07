@@ -86,9 +86,9 @@ class Chess(ABC,pygame.sprite.Sprite):
         target_colum_empty = True
         if (self is BLACK_checkmate) or (self is RED_checkmate):
             if (abs(BLACK_checkmate.x - RED_checkmate.x)==1) or (BLACK_checkmate.x == RED_checkmate.x):
-                target = (BLACK_checkmate if self is RED_checkmate else RED_checkmate)
+                target = (BLACK_checkmate if (self is RED_checkmate) else RED_checkmate)
                 temp_x = target.x
-                for temp_y in range(RED_checkmate.y+1,BLACK_checkmate.y):
+                for temp_y in range(BLACK_checkmate.y+1,RED_checkmate.y):
                     if chess_board.__contains__((temp_x,temp_y)):
                         target_colum_empty = False
                         break
@@ -99,7 +99,7 @@ class Chess(ABC,pygame.sprite.Sprite):
                             fileted_list.append(drop_point)
         elif (self.x == BLACK_checkmate.x) and (BLACK_checkmate.x == RED_checkmate.x):
             temp_x = BLACK_checkmate.x
-            for temp_y in range(RED_checkmate.y+1,BLACK_checkmate.y):
+            for temp_y in range(BLACK_checkmate.y+1,RED_checkmate.y):
                 if chess_board.__contains__((temp_x,temp_y)):
                     if not (chess_board[(temp_x,temp_y)] is self):
                         target_colum_empty = False

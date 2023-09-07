@@ -24,7 +24,6 @@ class 马(Chess):
 
         top_max, button_max = 0, 9
         left_max, right_max = 0, 8
-        self_posi = pygame.math.Vector2(self.x, self.y)
         # if self.color == ChessColor.RED:
         #     top_max, button_max = 0, 4
 

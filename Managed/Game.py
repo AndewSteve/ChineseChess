@@ -40,12 +40,12 @@ GAME_WIDTH,GAME_HEIGHT = 1200,780
 
 #提示窗口大小
 TIP_WIDTH,TIP_HEIGHT = 300,780
-ACTION_TIP_ORI_BLACK,ACTION_TIP_ORI_RED = (60,420),(60,240)
-ACTION_TIME_TIP_ORI_BLACK,ACTION_TIME_TIP_ORI_RED = (100,480),(100,300)
+ACTION_TIP_ORI_BLACK,ACTION_TIP_ORI_RED = (60,240),(60,420)
+ACTION_TIME_TIP_ORI_BLACK,ACTION_TIME_TIP_ORI_RED = (100,300),(100,480)
 
 #棋盘窗口大小
 CHESSBOARD_WIDTH, CHESSBOARD_HEIGHT = 600, 660
-GAMEOVER_TIP_ORI_RED,GAMEOVER_TIP_ORI_BLACK = (500,480),(500,180)
+GAMEOVER_TIP_ORI_RED,GAMEOVER_TIP_ORI_BLACK = (500,180),(500,480)
 #棋盘窗口原点
 CHESSBOARD_ORI = 300,60
 #每个格子的大小
@@ -73,10 +73,10 @@ def update_global_val(game_WIDTH, game_HEIGHT):
     LOG_ORI = (TIP_WIDTH + CHESSBOARD_WIDTH),0
     CHESSBOARD_ORI = TIP_WIDTH,(GAME_HEIGHT-CHESSBOARD_HEIGHT)//2
     OFFSET_X,OFFSET_Y = (TIP_WIDTH + CHESS_SIZE_X),(GAME_HEIGHT-CHESSBOARD_HEIGHT)//2 + CHESS_SIZE_Y
-    GAMEOVER_TIP_ORI_BLACK = (TIP_WIDTH+CHESSBOARD_WIDTH//3,OFFSET_Y+CHESS_SIZE_Y)
-    GAMEOVER_TIP_ORI_RED = (TIP_WIDTH+CHESSBOARD_WIDTH//3,OFFSET_Y+CHESS_SIZE_Y*6)
-    ACTION_TIP_ORI_BLACK,ACTION_TIP_ORI_RED = (TIP_WIDTH//5,OFFSET_Y+CHESS_SIZE_Y*5),(TIP_WIDTH//5,OFFSET_Y+CHESS_SIZE_Y*2)
-    ACTION_TIME_TIP_ORI_BLACK,ACTION_TIME_TIP_ORI_RED = (TIP_WIDTH/3,OFFSET_Y+CHESS_SIZE_Y*6),(TIP_WIDTH/3,OFFSET_Y+CHESS_SIZE_Y*3)
+    GAMEOVER_TIP_ORI_BLACK = (TIP_WIDTH+CHESSBOARD_WIDTH//3,OFFSET_Y+CHESS_SIZE_Y*6)
+    GAMEOVER_TIP_ORI_RED = (TIP_WIDTH+CHESSBOARD_WIDTH//3,OFFSET_Y+CHESS_SIZE_Y)
+    ACTION_TIP_ORI_BLACK,ACTION_TIP_ORI_RED = (TIP_WIDTH//5,OFFSET_Y+CHESS_SIZE_Y*2),(TIP_WIDTH//5,OFFSET_Y+CHESS_SIZE_Y*5)
+    ACTION_TIME_TIP_ORI_BLACK,ACTION_TIME_TIP_ORI_RED = (TIP_WIDTH/3,OFFSET_Y+CHESS_SIZE_Y*3),(TIP_WIDTH/3,OFFSET_Y+CHESS_SIZE_Y*6)
     SAVE_ORI = (TIP_WIDTH//2-140,TIP_HEIGHT//2-77*5)
     QUIT_ORI = (TIP_WIDTH//2-140,TIP_HEIGHT//2-77*3)
     REMAKE_ORI = (TIP_WIDTH//2-140,TIP_HEIGHT//2-77)
@@ -93,6 +93,7 @@ class ActionTeam(Enum):
 class Game:
     Action_team :ActionTeam= None
     def __init__(self):
+
         pygame.init()
         self.font = pygame.font.Font(front_path, 32)
         self.team_tip_font = pygame.font.Font(front_path, 60)
@@ -100,7 +101,7 @@ class Game:
         pygame.display.set_caption("中国象棋")  # 设置游戏名字
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.clock = pygame.time.Clock()
-        self.Action_team  = ActionTeam.BLACK
+        self.Action_team  = ActionTeam.RED
         self.action_timer = 0
         self.last_frame_time = 0
         self.message = [f"现在是{self.Action_team.name}的回合"]
@@ -214,15 +215,19 @@ class Game:
 
         #日志版
         self.save_img = pygame.image.load(os.path.join(icon_path,save_img))
+        self.save_img = pygame.transform.smoothscale(self.save_img, (186, 102))
         self.save_img_rect = self.save_img.get_rect()
         self.save_img_rect.center = TIP_WIDTH + TIP_WIDTH/2 + CHESSBOARD_WIDTH,TIP_HEIGHT/2-77*4
         self.quit_img = pygame.image.load(os.path.join(icon_path,quit_img))
+        self.quit_img = pygame.transform.smoothscale(self.quit_img, (186, 102))
         self.quit_img_rect = self.quit_img.get_rect()
         self.quit_img_rect.center = TIP_WIDTH + TIP_WIDTH/2 + CHESSBOARD_WIDTH,TIP_HEIGHT/2-77*2
         self.remake_img = pygame.image.load(os.path.join(icon_path,remake_img))
+        self.remake_img = pygame.transform.smoothscale(self.remake_img, (186, 102))
         self.remake_img_rect = self.remake_img.get_rect()
         self.remake_img_rect.center = TIP_WIDTH + TIP_WIDTH/2 + CHESSBOARD_WIDTH,TIP_HEIGHT/2
         self.log_surface = pygame.Surface((TIP_WIDTH, TIP_HEIGHT), pygame.SRCALPHA)
+        
         self.log_surface.fill((0, 0, 0, 0))
         self.log_surface_rect = self.log_surface.get_rect()
         self.log_surface_rect.center = TIP_WIDTH + TIP_WIDTH/2 + CHESSBOARD_WIDTH,TIP_HEIGHT/2
@@ -323,7 +328,8 @@ class Game:
                 self.log_info("不允许保存死局,或发生文件错误")
         elif self.quit_img_rect.collidepoint(mouse_posi):
             if not self.game_saved:
-                self.log_info("游戏未保存,是否要退出?(退出请直接结束程序)")
+                self.log_info("游戏未保存,是否要退出?")
+                self.log_info("(退出请直接结束程序)")
             else:
                 self.game_running = False
         elif self.remake_img_rect.collidepoint(mouse_posi):
@@ -334,6 +340,7 @@ class Game:
             container = self.container
             self.setContainer(container)
             self.init_screen()
+            self.game_over = False
             
 
 

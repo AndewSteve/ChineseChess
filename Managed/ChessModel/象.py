@@ -25,11 +25,9 @@ class 象(Chess):
         top_max, button_max = 5, 9
         left_max, right_max = 0, 8
         self_posi = pygame.math.Vector2(self.x, self.y)
-        if self.color == ChessColor.RED:
+        if self.color == ChessColor.BLACK:
             top_max, button_max = 0, 4
 
-        ori = pygame.math.Vector2((left_max + right_max) / 2, (top_max + button_max) / 2)
-        self_magnitude = (ori - self_posi).length()
 
         pre_select = [(self.x + 2, self.y + 2),
                       (self.x + 2, self.y - 2),

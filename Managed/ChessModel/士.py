@@ -24,7 +24,7 @@ class 士(Chess):
 
         possible = [(3,0),(5,0),(4,1),(3,2),(5,2)]
 
-        if self.color == ChessColor.BLACK:
+        if self.color == ChessColor.RED:
             for i in range(len(possible)):
                 x,y = possible[i]
                 possible[i] = x,y+7
