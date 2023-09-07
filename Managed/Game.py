@@ -2,7 +2,7 @@ from enum import Enum
 import os
 import pygame
 from pygame.locals import *
-
+from Managed.Mixer import Mixer
 
 #region 游戏资源
 chessBoard_img_path = './Resource/img/ChessBoard'
@@ -95,6 +95,7 @@ class Game:
     def __init__(self):
 
         pygame.init()
+        self.mixer = Mixer()
         self.font = pygame.font.Font(front_path, 32)
         self.team_tip_font = pygame.font.Font(front_path, 60)
         self.time_font = pygame.font.Font(front_path, 60)
@@ -105,6 +106,7 @@ class Game:
         self.action_timer = 0
         self.last_frame_time = 0
         self.message = [f"现在是{self.Action_team.name}的回合"]
+        self.checkmated_team:ActionTeam = None
         self.game_over = False
         self.game_saved = True
         self.game_running = True
@@ -112,6 +114,7 @@ class Game:
     def setContainer(self,container):
         self.container :Container = container
         self.all_sprites.add(self.container.chess_sprite_group,layer = CHESS_LAYER)
+        self.container.setMixer(self.mixer)
 
     def run(self):
         self.init_screen()
@@ -142,15 +145,30 @@ class Game:
                 selected_chess = self.container.selected_chess
                 self.all_sprites.add(selected_chess.drop_sprite_group,layer = DROP_POINT_LAYER)#添加落点展示
         else:
-            self.container.check_and_drop_chess(mouse_posi)#检查是否点击到落点
+            if not self.container.check_and_drop_chess(mouse_posi):#检查是否点击到落点
+                self.mixer.play("提示音")
+                if not self.container.checkmated_Team == None:
+                    self.log_info(f"{self.checkmated_team.name}正在被将军")
+                    self.log_info(f"请先防守")
+                else:
+                    self.log_info(f"不能自杀")
             if self.container.selected_chess == None:#点击到落点
+                self.mixer.play("落子声")
                 self.all_sprites.remove_sprites_of_layer(DROP_POINT_LAYER)#清空落点
                 if self.container.RED_checkmate == None or self.container.BLACK_checkmate == None:#有将死
                     self.game_over = True
+                    self.mixer.play("绝杀声")
                     self.log_info(f"游戏结束，{self.Action_team.name}胜利")
                     print(f"游戏结束，{self.Action_team}胜利")
                     self.game_saved = True
                 else:
+                    if not self.container.checkmated_Team == None:
+                        self.checkmated_team = ActionTeam.RED if self.container.checkmated_Team.value == ActionTeam.RED.value else ActionTeam.BLACK
+                        if self.checkmated_team == ActionTeam.RED:
+                            self.mixer.play("将军")
+                        else:
+                            self.mixer.play("checkmate")
+                        self.log_info(f"{self.checkmated_team.name}被将军")
                     self.Action_team = (ActionTeam.RED if self.Action_team == ActionTeam.BLACK else ActionTeam.BLACK)#换手
                     self.action_timer = 0
                     self.log_info(f"现在是{self.Action_team.name}的回合")
@@ -340,6 +358,8 @@ class Game:
             container = self.container
             self.setContainer(container)
             self.init_screen()
+            self.Action_team = ActionTeam.RED
+            self.action_timer = 0
             self.game_over = False
             
 

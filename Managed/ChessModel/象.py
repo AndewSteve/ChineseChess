@@ -52,4 +52,4 @@ class 象(Chess):
         if to_checkmate:
              return result
         else:
-            super().onSelected(result,chess_board,BLACK_checkmate,RED_checkmate)
+            super().onSelected(result,chess_board,BLACK_checkmate,RED_checkmate,to_checkmate)

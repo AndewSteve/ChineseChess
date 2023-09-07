@@ -31,7 +31,7 @@ class ChessColor(Enum):
 
 class Chess(ABC,pygame.sprite.Sprite):
     def __init__(self,color):
-        self.color = color
+        self.color:ChessColor = color
         super().__init__()
         self.rect:pygame.Rect = None
 
@@ -49,7 +49,7 @@ class Chess(ABC,pygame.sprite.Sprite):
         #self.rect.center = Dict_to_Abs_posi(dict_posi)  游戏开始时会刷新屏幕，Container会给所有棋子摆正
 
     @abstractmethod
-    def onSelected(self,drop_point_list,chess_board,BLACK_checkmate,RED_checkmate):
+    def onSelected(self,drop_point_list,chess_board,BLACK_checkmate,RED_checkmate,to_checkmate = False):
         """展示落点
 
         Args:
@@ -57,7 +57,11 @@ class Chess(ABC,pygame.sprite.Sprite):
             chess_board (dict[(int,int),Chess]): Container传给具体棋子类的棋盘信息
             BLACK_checkmate (Chess): Container传给父类的"将"信息
             RED_checkmate (Chess): Container传给父类的"帅"信息
+            to_checkmate (bool, optional): 是否要截获落点数组. Defaults to False.
         """
+
+        if to_checkmate:
+             return drop_point_list
 
         #将帅不相见
         drop_point_list = self.check_king_opposite(drop_point_list,chess_board,BLACK_checkmate,RED_checkmate)
@@ -88,9 +92,12 @@ class Chess(ABC,pygame.sprite.Sprite):
             if (abs(BLACK_checkmate.x - RED_checkmate.x)==1) or (BLACK_checkmate.x == RED_checkmate.x):
                 target = (BLACK_checkmate if (self is RED_checkmate) else RED_checkmate)
                 temp_x = target.x
-                for temp_y in range(BLACK_checkmate.y+1,RED_checkmate.y):
-                    if chess_board.__contains__((temp_x,temp_y)):
-                        target_colum_empty = False
+                for temp_y in range(BLACK_checkmate.y,RED_checkmate.y+1):
+                    if chess_board.__contains__((temp_x,temp_y)) and (not(chess_board[(temp_x,temp_y)] is self)) and (not(chess_board[(temp_x,temp_y)] is target)):
+                        if drop_point_list.__contains__((temp_x,temp_y)):
+                            fileted_list.append((temp_x,temp_y))
+                        else:
+                            target_colum_empty = False
                         break
                 if target_colum_empty:
                     for drop_point in drop_point_list:
@@ -110,7 +117,8 @@ class Chess(ABC,pygame.sprite.Sprite):
                     if not x == self.x:
                         fileted_list.append(drop_point)
         for drop_point in fileted_list:
-            drop_point_list.remove(drop_point)
+            if drop_point_list.__contains__(drop_point):
+                drop_point_list.remove(drop_point)
         return drop_point_list
 
     # def draw_drop_points(self,screen):

@@ -2,7 +2,7 @@ import pygame
 from Managed.ChessModel import Chess,DropPoint,ChessColor,卒,象,士,炮,马,将,车
 import json
 from Managed.Game import Dict_to_Abs_posi
-
+from Managed.Mixer import Mixer
 game_init_path = "./save/__init__.json"
 game_save_path = "./save/save00.json"
 game_load_path = "./save/save00.json"
@@ -12,11 +12,16 @@ class Container:
     selected_chess:Chess = None
     RED_checkmate:Chess = None
     BLACK_checkmate:Chess = None
+    checkmated_Team:ChessColor = None
+    mixer:Mixer = None
     def __init__(self):
         self.chess_sprite_group = pygame.sprite.Group()
         self.load_chess_board()
         self.initChessBoard()
     
+    def setMixer(self,mixer):
+        self.mixer = mixer
+
     def initChessBoard(self):
         """初始化棋子图片,记录将帅位置
         """
@@ -41,21 +46,39 @@ class Container:
         for dict_posi,drop_sprite in self.selected_chess.drop_point_dict.items():
             if drop_sprite.rect.collidepoint(abs_x,abs_y):
                 x,y = dict_posi
+
+                if not self.checkmated_Team == None:
+                    if self.Guard(self.selected_chess,dict_posi,self.selected_chess.color):
+                        del self.checkmated_Team
+                    else:
+                        return False
+                elif not self.Guard(self.selected_chess,dict_posi,self.selected_chess.color):
+                    return False
+
                 if self.chess_board.__contains__(dict_posi):
                     chess_destroyed = self.chess_board[dict_posi]
                     self.updateChess(chess_destroyed,(-10,-10))
                     chess_destroyed.move((-10,-10))
+                    self.mixer.play("吃子声")
                     #print(f"棋子{chess_destroyed.__class__.__name__}被吃掉了")
                     if chess_destroyed is self.BLACK_checkmate:
                         self.BLACK_checkmate = None
                     elif chess_destroyed is self.RED_checkmate:
                         self.RED_checkmate = None
+
                 self.updateChess(self.selected_chess,dict_posi)
                 self.selected_chess.move(dict_posi)
+
+                if self.checkmate(self.selected_chess):
+                    self.checkmated_Team = (ChessColor.RED if self.selected_chess.color == ChessColor.BLACK else ChessColor.BLACK)
+
+
                 del self.selected_chess.drop_point_dict
                 #print(f"棋子{self.selected_chess.__class__.__name__}落到{x}_{y}")
                 del self.selected_chess.drop_sprite_group
                 del self.selected_chess
+        return True
+
 
     
     
@@ -82,22 +105,49 @@ class Container:
                     del self.selected_chess
                 #print(f"点击到棋子{chess.__class__.__name__}:({dict_x},{dict_y})")
                 self.selected_chess = chess
-                chess.onSelected(self.chess_board,self.BLACK_checkmate,self.RED_checkmate)
+                chess.onSelected(self.chess_board,self.BLACK_checkmate,self.RED_checkmate,to_checkmate = False)
                 return True
         return False
 
-    def checkmate(self):
-        for posi,chess in self.chess_board.items():
-            x,y = posi
-            current_chess = chess
-
-            flag = False
-            drop_list = chess.onSelected(self.chess_board,self.BLACK_checkmate,self.RED_checkmate,True)
-            for drop_point in drop_list:
-                drop_x,drop_y = drop_point
-                if flag:
-                    return True
+    def checkmate(self,chess:Chess):
+        target = (self.RED_checkmate if chess.color == ChessColor.BLACK else self.BLACK_checkmate)
+        pre_drops = chess.onSelected(self.chess_board,self.BLACK_checkmate,self.RED_checkmate,to_checkmate = True)
+        for pre_drop in pre_drops:
+            if self.chess_board.__contains__(pre_drop) and self.chess_board[pre_drop] is target:
+                return True
         return False
+    
+    def Guard(self,chess:Chess,pre_drop,guard_team):
+        result = True
+
+        ori_posi = chess.x,chess.y
+
+        destroyed_spawn = self.chess_board.__contains__(pre_drop)
+        temp_chess_destroyed = None
+
+        if destroyed_spawn:
+            temp_chess_destroyed = self.chess_board[pre_drop]
+            self.chess_board.pop(pre_drop)
+            temp_chess_destroyed.move((-10,-10))
+        self.updateChess(chess,pre_drop)
+
+        for _,enemy in self.chess_board.items():
+            if not enemy.color == guard_team:
+                if self.checkmate(enemy):
+                    result = False
+                    break
+
+
+        if self.chess_board.__contains__(pre_drop):
+            self.chess_board.pop(pre_drop)
+        self.chess_board[ori_posi] = chess
+
+        if destroyed_spawn:
+            temp_chess_destroyed.move(pre_drop)
+            self.updateChess(temp_chess_destroyed,pre_drop)
+
+        return result
+
 
     def update_abs_posi(self):
         """更新所有棋子的屏幕坐标
@@ -114,7 +164,8 @@ class Container:
             new_posi (tuple): 新的逻辑坐标
         """
         old_posi = (chess.x,chess.y)
-        self.chess_board.pop(old_posi)
+        if self.chess_board.__contains__(old_posi):
+            self.chess_board.pop(old_posi)
         self.chess_board[new_posi] = chess
 
 
