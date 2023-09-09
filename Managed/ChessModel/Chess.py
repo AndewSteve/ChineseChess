@@ -2,8 +2,8 @@ import abc,pygame
 import os
 from abc import abstractmethod,ABC
 from enum import Enum
-from Managed.Screen import Dict_to_Abs_posi,scale_chess_img
 from .ChessColor import ChessColor
+
 
 #region 游戏资源
 chess_img_path = "./Resource/img/Chess"
@@ -36,6 +36,7 @@ class Chess(ABC,pygame.sprite.Sprite):
 
     @abstractmethod
     def init(self,dict_posi):
+        from Managed.Window import scale_chess_img
         """加载图片
 
         Args:
@@ -134,6 +135,7 @@ class Chess(ABC,pygame.sprite.Sprite):
         pass
 
     def move(self,dict_posi):
+        from Managed.Window import Dict_to_Abs_posi
         """_summary_
 
         Args:
@@ -147,6 +149,7 @@ class Chess(ABC,pygame.sprite.Sprite):
     
 class DropPoint(pygame.sprite.Sprite):
     def __init__(self,kind:DropPointKind,dict_posi):
+        from Managed.Window import Dict_to_Abs_posi,scale_chess_img
         super().__init__()
         enlargeSize = 1
         if kind == DropPointKind.TIP:

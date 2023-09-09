@@ -1,11 +1,12 @@
 import pygame
 from Managed.ChessModel import Chess,DropPoint,ChessColor,卒,象,士,炮,马,将,车
 import json
-from Managed.Screen import Dict_to_Abs_posi
+from Managed.Window import Dict_to_Abs_posi
 from Managed.Mixer import Mixer
 game_init_path = "./save/__init__.json"
 game_save_path = "./save/save00.json"
 game_load_path = "./save/save00.json"
+
 
 class Container:
     chess_board:dict[(int,int),Chess] = {}
@@ -40,50 +41,67 @@ class Container:
     def check_and_drop_chess(self,abs_posi):
         """对当前选中的棋子落点碰撞检测,点中落点后会删除选中棋子的引用
 
-
         Args:
             abs_posi (tuple): 鼠标位置
+        Return:
+            True: 成功落子时返回True,并删除Container的selected_chess引用;遍历完落点数组时也会返回True
+
+            False: 自杀或应将失败都会返回False
         """
         abs_x,abs_y = abs_posi
         for dict_posi,drop_sprite in self.selected_chess.drop_point_dict.items():
             if drop_sprite.rect.collidepoint(abs_x,abs_y):
-                x,y = dict_posi
+                # x,y = dict_posi
 
-                if not self.checkmated_Team == None:
+                #region 应将和防自杀判定
+                if self.checkmated_Team: #被将军时判定是否能应将
                     if self.Guard(self.selected_chess,dict_posi,self.selected_chess.color):
                         self.tip_count =0
                         del self.checkmated_Team
                     else:
+                        self.mixer.play("提示音")
                         self.tip_count+=1
                         if self.tip_count<6:
                             return False
-                elif not self.Guard(self.selected_chess,dict_posi,self.selected_chess.color):
+                elif not self.Guard(self.selected_chess,dict_posi,self.selected_chess.color):#判定是否为自杀
+                    self.mixer.play("提示音")
                     self.tip_count+=1
                     if self.tip_count<6:
                         return False
+                #endregion
+
+
+                self.mixer.play("落子声")
 
                 if self.chess_board.__contains__(dict_posi):
                     chess_destroyed = self.chess_board[dict_posi]
                     self.updateChess(chess_destroyed,(-10,-10))
                     chess_destroyed.move((-10,-10))
-                    self.mixer.play("吃子声")
                     #print(f"棋子{chess_destroyed.__class__.__name__}被吃掉了")
                     if chess_destroyed is self.BLACK_checkmate:
                         self.BLACK_checkmate = None
+                        self.mixer.play("绝杀声")
                     elif chess_destroyed is self.RED_checkmate:
                         self.RED_checkmate = None
+                        self.mixer.play("绝杀声")
+                    else:
+                        self.mixer.play("吃子声")
 
                 self.updateChess(self.selected_chess,dict_posi)
                 self.selected_chess.move(dict_posi)
 
                 if self.checkmate(self.selected_chess):
-                    self.checkmated_Team = (ChessColor.RED if self.selected_chess.color == ChessColor.BLACK else ChessColor.BLACK)
-
-
+                    if self.selected_chess.color == ChessColor.BLACK:
+                        self.checkmated_Team = ChessColor.RED
+                        self.mixer.play("将军")
+                    else:
+                        self.checkmated_Team = ChessColor.BLACK
+                        self.mixer.play("checkmate")
                 del self.selected_chess.drop_point_dict
                 #print(f"棋子{self.selected_chess.__class__.__name__}落到{x}_{y}")
                 del self.selected_chess.drop_sprite_group
                 del self.selected_chess
+                return True
         return True
 
 
@@ -91,14 +109,16 @@ class Container:
     
 
     def check_and_select_chess(self,posi,action_team):
-        """对棋盘所有棋子碰撞检测,点中行动方棋子会添加selected_chess引用
+        """对棋盘所有棋子碰撞检测,点中行动方的棋子的话,会为Container添加selected_chess引用
 
         Args:
             posi (_type_): 鼠标位置
             action_team (_type_): 当前行动方
 
         Returns:
-            Boolean: 是否有选中棋子
+            True: 选中当前队伍的棋子,并为Container添加selected_chess引用
+            
+            False: 没有选中当前队伍的棋子
         """
         x,y =posi
         for dict_posi,chess in self.chess_board.items():
@@ -117,6 +137,16 @@ class Container:
         return False
 
     def checkmate(self,chess:Chess):
+        """判断是否将军
+
+        Args:
+            chess (Chess): 可能导致对方将军的棋子
+
+        Returns:
+            True: 能使对面将军
+
+            False: 不能使对方将军
+        """
         target = (self.RED_checkmate if chess.color == ChessColor.BLACK else self.BLACK_checkmate)
         pre_drops = chess.onSelected(self.chess_board,self.BLACK_checkmate,self.RED_checkmate,to_checkmate = True)
         for pre_drop in pre_drops:
@@ -125,34 +155,38 @@ class Container:
         return False
     
     def Guard(self,chess:Chess,pre_drop,guard_team):
+        """在被将军的情况下,本次行动能否应将
+
+        Args:
+            chess (Chess): 本次行动的棋子
+            pre_drop (_type_): 棋子的落点
+            guard_team (_type_): 防守方
+
+        Returns:
+            True: 落点能够应将
+
+            False: 落点不能应将
+        """
         result = True
-
         ori_posi = chess.x,chess.y
-
         destroyed_spawn = self.chess_board.__contains__(pre_drop)
         temp_chess_destroyed = None
-
         if destroyed_spawn:
             temp_chess_destroyed = self.chess_board[pre_drop]
             self.chess_board.pop(pre_drop)
             temp_chess_destroyed.move((-10,-10))
         self.updateChess(chess,pre_drop)
-
         for _,enemy in self.chess_board.items():
             if not enemy.color == guard_team:
                 if self.checkmate(enemy):
                     result = False
                     break
-
-
         if self.chess_board.__contains__(pre_drop):
             self.chess_board.pop(pre_drop)
         self.chess_board[ori_posi] = chess
-
         if destroyed_spawn:
             temp_chess_destroyed.move(pre_drop)
             self.updateChess(temp_chess_destroyed,pre_drop)
-
         return result
 
 
@@ -199,24 +233,27 @@ class Container:
         self.selected_chess = None
         if remake:
             filename = game_init_path
-        with open(filename, "r") as file:
-            saved_dict = json.load(file)
+        with open(filename, "r" ,encoding='utf-8') as file:
+            saved_dict:dict[str,str] = json.load(file)
             for saved_key, saved_value in saved_dict.items():
-                x,y = map(int, saved_key.split('_'))
-                class_name,chess_color = saved_value.split('_')
-                chess_class = globals()[class_name]
-                self.chess_board[(x,y)] = chess_class(ChessColor(int(chess_color)))
+                if saved_key == "action_team":
+                    self.action_team_save = ChessColor(int(saved_value))
+                else:
+                    x,y = map(int, saved_key.split('_'))
+                    class_name,chess_color = saved_value.split('_')
+                    chess_class = globals()[class_name]
+                    self.chess_board[(x,y)] = chess_class(ChessColor(int(chess_color)))
         self.initChessBoard()
         print(f"导入存档:{filename}")
 
-    def save_chess_board(self,filename = game_save_path,action_team=ChessColor.RED):
+    def save_chess_board(self,action_team=ChessColor.RED,filename = game_save_path):
         """保存存档到json文件
 
         Args:
             filename (str, optional): 默认保存到save00. Defaults to game_save_path.
         """
-        with open(filename, "w") as file:
-            new_dict = {}
+        with open(filename, "w",encoding='utf-8') as file:
+            new_dict = {"action_team":str(action_team.value)}
             for key, value in self.chess_board.items():
                 x,y = key
                 new_key = f"{x}_{y}"
