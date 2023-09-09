@@ -1,4 +1,4 @@
-import os,pygame
+import os
 from .Chess import Chess,ChessColor,chess_img_path
 class 象(Chess):
     def init(self, position):
@@ -24,7 +24,6 @@ class 象(Chess):
 
         top_max, button_max = 5, 9
         left_max, right_max = 0, 8
-        self_posi = pygame.math.Vector2(self.x, self.y)
         if self.color == ChessColor.BLACK:
             top_max, button_max = 0, 4
 

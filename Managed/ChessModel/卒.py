@@ -1,4 +1,4 @@
-import os,pygame
+import os
 from .Chess import Chess,ChessColor,chess_img_path
 class 卒(Chess):
     def init(self, position):

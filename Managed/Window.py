@@ -96,7 +96,7 @@ class Window:
         self.message = [f"现在是{self.Action_team.name}的回合"]
         self.all_sprites.add(self.container.chess_sprite_group,layer = CHESS_LAYER)
 
-    def blit_Screen(self):
+    def blit_Screen(self):#更新屏幕
         self.blit_BackGround_Surface()
         self.blit_Tip_Surface()
         self.blit_ChessBoard_Surface()
@@ -107,7 +107,7 @@ class Window:
             self.display_winner()
         pygame.display.flip()
 
-    def init_Screen(self):
+    def init_Screen(self):#初始化资源
         self.init_BackGround_Surface()
         self.init_Tip_Surface()
         self.init_ChessBoard_Surface()
@@ -115,12 +115,12 @@ class Window:
         self.container.update_abs_posi()
         self.blit_Screen()
 
-    def loadTextAssets(self):
+    def loadTextAssets(self):#加载字体资源
         self.font = pygame.font.Font(front_path, 32)
         self.team_tip_font = pygame.font.Font(front_path, 60)
         self.time_font = pygame.font.Font(front_path, 60)
 
-    def loadIconAssets(self):
+    def loadIconAssets(self):#加载标志图资源
         for filename in os.listdir(Icon_Asset_path):
             if filename.endswith(".png"):
                 icon_name = os.path.splitext(filename)[0]
@@ -128,6 +128,7 @@ class Window:
                 icon = Icon(icon_path)
                 self.icon_dict[icon_name] = icon
 
+    #region 背景板
     def init_BackGround_Surface(self):
         background_img = pygame.image.load(os.path.join(chessBoard_img_path,backGround_img))
         self.background_img = pygame.transform.scale(background_img,(GAME_WIDTH, GAME_HEIGHT))
@@ -135,7 +136,9 @@ class Window:
 
     def blit_BackGround_Surface(self):
         self.screen.blit(self.background_img, (0, 0))
+    #endregion
 
+    #region 左侧提示板
     def init_Tip_Surface(self):
         self.tip_surface = pygame.Surface((TIP_WIDTH, TIP_HEIGHT), pygame.SRCALPHA)
         self.teamTipRed_sub_surface = self.team_tip_font.render("红方走棋",True,color_white)
@@ -177,7 +180,9 @@ class Window:
             self.tip_surface.blit(time_sub_surface,ACTION_TIME_TIP_ORI_BLACK)
         #endregion
         self.screen.blit(self.tip_surface,(0,0))
+    #endregion
 
+    #region 棋盘板
     def init_ChessBoard_Surface(self):
         self.chessBoard_surface = pygame.Surface((CHESSBOARD_WIDTH, CHESSBOARD_HEIGHT))
         self.board_img = pygame.image.load(os.path.join(chessBoard_img_path,chessBoard_img))
@@ -185,7 +190,9 @@ class Window:
     def blit_ChessBoard_Surface(self):
         self.chessBoard_surface.blit(self.board_img,(0,0))
         self.screen.blit(self.chessBoard_surface, CHESSBOARD_ORI)
+    #endregion
 
+    #region 右侧日志板
     def init_Log_Surface(self):
         self.log_surface = pygame.Surface((TIP_WIDTH, TIP_HEIGHT), pygame.SRCALPHA)
         self.log_surface_rect = self.log_surface.get_rect()
@@ -200,7 +207,7 @@ class Window:
             if len(self.message)>log_capital:
                 self.message.pop(0)
             self.message.append(text)
-    
+
     def blit_Log_Surface(self):
         """在日志版上输出信息
         
@@ -221,7 +228,9 @@ class Window:
             self.log_surface.blit(text_sub_surface,(0,y))
             y -= self.font.get_height()
         self.screen.blit(self.log_surface,LOG_ORI)
+    #endregion
 
+    #region 覆盖在游戏屏幕上的胜利提示
     def display_winner(self):
         """展示结束图片
         """
@@ -231,12 +240,13 @@ class Window:
         else:
             self.screen.blit(self.icon_dict["获胜"].image,GAMEOVER_TIP_ORI_BLACK)
             self.screen.blit(self.icon_dict["败北"],GAMEOVER_TIP_ORI_RED)
+    #endregion
 
 def scale_chess_img(image,enlargeSize = 1):#将棋子素材缩放到合适比例
     return pygame.transform.smoothscale(image, (CHESS_SIZE_X*enlargeSize, CHESS_SIZE_Y*enlargeSize))
     #return pygame.transform.scale(image,(CHESS_SIZE_X*enlargeSize, CHESS_SIZE_Y*enlargeSize))
 
-def Dict_to_Abs_posi(dict_posi):
+def Dict_to_Abs_posi(dict_posi):#将逻辑坐标转化为屏幕坐标
     """将逻辑坐标转化为屏幕坐标
 
     Args:

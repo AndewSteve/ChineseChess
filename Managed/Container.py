@@ -1,5 +1,5 @@
 import pygame
-from Managed.ChessModel import Chess,DropPoint,ChessColor,卒,象,士,炮,马,将,车
+from Managed.ChessModel import Chess,ChessColor,卒,象,士,炮,马,将,车
 import json
 from Managed.Window import Dict_to_Abs_posi
 from Managed.Mixer import Mixer

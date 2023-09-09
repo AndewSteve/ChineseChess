@@ -70,7 +70,6 @@ class Game:
                     self.window.log_info(f"游戏结束，{self.window.Action_team.name}胜利")
                     print(f"游戏结束，{self.window.Action_team}胜利")
                     self.window.game_saved = True
-                    self.mixer.play("Apex")
                 else:
                     if self.container.checkmated_Team:#有一方被将军
                         self.window.checkmated_team = self.container.checkmated_Team

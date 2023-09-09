@@ -1,4 +1,4 @@
-import os,pygame
+import os
 from .Chess import Chess,ChessColor,chess_img_path
 class 炮(Chess):
     def init(self, position):
@@ -21,16 +21,6 @@ class 炮(Chess):
             list:tuple: 落点逻辑坐标数组
         """
         result = []
-
-        top_max, button_max = 0, 9
-        left_max, right_max = 0, 8
-        self_posi = pygame.math.Vector2(self.x, self.y)
-        # if self.color == ChessColor.RED:
-        #     top_max, button_max = 0, 4
-
-        ori = pygame.math.Vector2((left_max + right_max) / 2, (top_max + button_max) / 2)
-        self_magnitude = (ori - self_posi).length()
-        pre_select = []
         if self.y < 8:
           for i in range(self.y + 1 , 9): #中到下
             if chess_board.__contains__((self.x,i)) == False: #路上无子
