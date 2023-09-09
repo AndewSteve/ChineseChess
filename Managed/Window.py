@@ -1,7 +1,7 @@
 import os
 import pygame
 from pygame.locals import *
-from Managed.ChessModel import ChessColor
+from Managed.ChessModel.ChessColor import ChessColor
 from Managed.icon import icon as Icon
 
 chessBoard_img_path = './Resource/img/ChessBoard'
@@ -34,7 +34,7 @@ ACTION_TIME_TIP_ORI_BLACK,ACTION_TIME_TIP_ORI_RED = (100,300),(100,480)
 
 #棋盘窗口大小
 CHESSBOARD_WIDTH, CHESSBOARD_HEIGHT = 600, 660
-GAMEOVER_TIP_ORI_RED,GAMEOVER_TIP_ORI_BLACK = (500,180),(500,480)
+GAMEOVER_TIP_ORI_RED,GAMEOVER_TIP_ORI_BLACK = (500,480),(500,180)
 #棋盘窗口原点
 CHESSBOARD_ORI = 300,60
 #每个格子的大小
@@ -74,16 +74,14 @@ def update_global_val(game_WIDTH, game_HEIGHT):
 #endregion
 
 
-class Screen:
+class Window:
     icon_dict:dict[str,Icon]={}
     all_sprites = pygame.sprite.LayeredUpdates()
     container = None
     def __init__(self):
         self.clock = pygame.time.Clock()
-        self.Action_team  = ChessColor.RED
         self.action_timer = 0
         self.last_frame_time = 0
-        self.message = [f"现在是{self.Action_team.name}的回合"]
         self.checkmated_team:ChessColor = None
         self.game_over = False
         self.game_saved = True
@@ -94,6 +92,8 @@ class Screen:
     def setContainer(self,container):
         from Managed.Container import Container
         self.container :Container = container
+        self.Action_team :ChessColor = self.container.action_team_save
+        self.message = [f"现在是{self.Action_team.name}的回合"]
         self.all_sprites.add(self.container.chess_sprite_group,layer = CHESS_LAYER)
 
     def blit_Screen(self):
@@ -112,6 +112,7 @@ class Screen:
         self.init_Tip_Surface()
         self.init_ChessBoard_Surface()
         self.init_Log_Surface()
+        self.container.update_abs_posi()
         self.blit_Screen()
 
     def loadTextAssets(self):
@@ -190,9 +191,9 @@ class Screen:
         self.log_surface_rect = self.log_surface.get_rect()
         self.log_surface_rect.center = TIP_WIDTH + TIP_WIDTH/2 + CHESSBOARD_WIDTH,TIP_HEIGHT/2
 
-        self.icon_dict["remake"].set_topleft(REMAKE_ORI)
-        self.icon_dict["quit"].set_topleft(QUIT_ORI)
-        self.icon_dict["save"].set_topleft(SAVE_ORI)
+        self.icon_dict["remake"].set_topleft((TIP_WIDTH + CHESSBOARD_WIDTH + REMAKE_ORI[0],REMAKE_ORI[1]))
+        self.icon_dict["quit"].set_topleft((TIP_WIDTH + CHESSBOARD_WIDTH + QUIT_ORI[0],QUIT_ORI[1]))
+        self.icon_dict["save"].set_topleft((TIP_WIDTH + CHESSBOARD_WIDTH + SAVE_ORI[0],SAVE_ORI[1]))
 
     def log_info(self,text=""):
         if not text == "":
