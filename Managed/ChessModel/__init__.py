@@ -1,4 +1,5 @@
-from .Chess import Chess,ChessColor,DropPoint
+from .Chess import Chess,DropPoint
+from .ChessColor import ChessColor
 from .卒 import 卒
 from .士 import 士
 from .象 import 象

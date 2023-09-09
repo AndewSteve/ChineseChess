@@ -2,7 +2,8 @@ import abc,pygame
 import os
 from abc import abstractmethod,ABC
 from enum import Enum
-from Managed.Game import Dict_to_Abs_posi,scale_chess_img
+from Managed.Screen import Dict_to_Abs_posi,scale_chess_img
+from .ChessColor import ChessColor
 
 #region 游戏资源
 chess_img_path = "./Resource/img/Chess"
@@ -25,9 +26,7 @@ class DropPointKind(Enum):
     EATABLE_RED = 3
     SELECTED = 4
 
-class ChessColor(Enum):
-    RED = 1
-    BLACK = 2
+
 
 class Chess(ABC,pygame.sprite.Sprite):
     def __init__(self,color):

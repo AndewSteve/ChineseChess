@@ -94,7 +94,7 @@ class Game:
     Action_team :ActionTeam= None
     def __init__(self):
 
-        pygame.init()
+        
         self.mixer = Mixer()
         self.font = pygame.font.Font(front_path, 32)
         self.team_tip_font = pygame.font.Font(front_path, 60)

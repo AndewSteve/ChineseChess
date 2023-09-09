@@ -1,7 +1,7 @@
 import pygame
 from Managed.ChessModel import Chess,DropPoint,ChessColor,卒,象,士,炮,马,将,车
 import json
-from Managed.Game import Dict_to_Abs_posi
+from Managed.Screen import Dict_to_Abs_posi
 from Managed.Mixer import Mixer
 game_init_path = "./save/__init__.json"
 game_save_path = "./save/save00.json"
@@ -14,6 +14,8 @@ class Container:
     BLACK_checkmate:Chess = None
     checkmated_Team:ChessColor = None
     mixer:Mixer = None
+    action_team_save:ChessColor = None
+    tip_count = 0
     def __init__(self):
         self.chess_sprite_group = pygame.sprite.Group()
         self.load_chess_board()
@@ -49,11 +51,16 @@ class Container:
 
                 if not self.checkmated_Team == None:
                     if self.Guard(self.selected_chess,dict_posi,self.selected_chess.color):
+                        self.tip_count =0
                         del self.checkmated_Team
                     else:
-                        return False
+                        self.tip_count+=1
+                        if self.tip_count<6:
+                            return False
                 elif not self.Guard(self.selected_chess,dict_posi,self.selected_chess.color):
-                    return False
+                    self.tip_count+=1
+                    if self.tip_count<6:
+                        return False
 
                 if self.chess_board.__contains__(dict_posi):
                     chess_destroyed = self.chess_board[dict_posi]
@@ -202,7 +209,7 @@ class Container:
         self.initChessBoard()
         print(f"导入存档:{filename}")
 
-    def save_chess_board(self,filename = game_save_path):
+    def save_chess_board(self,filename = game_save_path,action_team=ChessColor.RED):
         """保存存档到json文件
 
         Args:
