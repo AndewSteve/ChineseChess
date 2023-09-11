@@ -2,9 +2,13 @@
     "cSpell.words": [
         "blit",
         "collidepoint",
+        "DARKMODE",
+        "LIGHTMODE",
         "MOUSEBUTTONDOWN",
         "pygame",
         "SRCALPHA",
+        "srcset",
+        "venv",
         "VIDEORESIZE"
     ]
 }
