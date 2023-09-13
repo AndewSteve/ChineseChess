@@ -26,7 +26,7 @@ pip install pygame
 你也可以选择通过终端手动激活虚拟环境
 ```
 cd ./venvForPygame/Scripts
-./active
+./activate
 ```
 
 ## 开始游戏
