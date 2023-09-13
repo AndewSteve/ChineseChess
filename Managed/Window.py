@@ -132,7 +132,7 @@ class Window:
     def init_BackGround_Surface(self):
         background_img = pygame.image.load(os.path.join(chessBoard_img_path,backGround_img))
         self.background_img = pygame.transform.scale(background_img,(GAME_WIDTH, GAME_HEIGHT))
-        self.screen = pygame.display.set_mode((GAME_WIDTH, GAME_HEIGHT), pygame.RESIZABLE)
+        self.screen = pygame.display.set_mode((GAME_WIDTH, GAME_HEIGHT))
 
     def blit_BackGround_Surface(self):
         self.screen.blit(self.background_img, (0, 0))
