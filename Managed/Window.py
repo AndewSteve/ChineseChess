@@ -239,7 +239,7 @@ class Window:
             self.screen.blit(self.icon_dict["败北"].image,GAMEOVER_TIP_ORI_BLACK)
         else:
             self.screen.blit(self.icon_dict["获胜"].image,GAMEOVER_TIP_ORI_BLACK)
-            self.screen.blit(self.icon_dict["败北"],GAMEOVER_TIP_ORI_RED)
+            self.screen.blit(self.icon_dict["败北"].image,GAMEOVER_TIP_ORI_RED)
     #endregion
 
 def scale_chess_img(image,enlargeSize = 1):#将棋子素材缩放到合适比例

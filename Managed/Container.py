@@ -52,7 +52,7 @@ class Container:
         for dict_posi,drop_sprite in self.selected_chess.drop_point_dict.items():
             if drop_sprite.rect.collidepoint(abs_x,abs_y):
                 # x,y = dict_posi
-
+                eat_flag = False
                 #region 应将和防自杀判定
                 if self.checkmated_Team: #被将军时判定是否能应将
                     if self.Guard(self.selected_chess,dict_posi,self.selected_chess.color):
@@ -74,6 +74,7 @@ class Container:
                 self.mixer.play("落子声")
 
                 if self.chess_board.__contains__(dict_posi):
+                    eat_flag = True
                     chess_destroyed = self.chess_board[dict_posi]
                     self.updateChess(chess_destroyed,(-10,-10))
                     chess_destroyed.move((-10,-10))
@@ -97,6 +98,8 @@ class Container:
                     else:
                         self.checkmated_Team = ChessColor.BLACK
                         self.mixer.play("checkmate")
+                elif eat_flag:
+                    self.mixer.play("吃子声")
                 del self.selected_chess.drop_point_dict
                 #print(f"棋子{self.selected_chess.__class__.__name__}落到{x}_{y}")
                 del self.selected_chess.drop_sprite_group
